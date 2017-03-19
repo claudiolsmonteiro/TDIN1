@@ -1,4 +1,6 @@
-﻿namespace Client
+﻿using System;
+
+namespace Client
 {
     partial class Form1
     {
@@ -56,8 +58,9 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 2;
-            this.button1.Text = "Log In";
+            this.button1.Text = "Login";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.LoginButton_Click);
             // 
             // button2
             // 
@@ -67,6 +70,7 @@
             this.button2.TabIndex = 3;
             this.button2.Text = "Register";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.RegisterButton_Click);
             // 
             // label1
             // 
@@ -76,7 +80,6 @@
             this.label1.Size = new System.Drawing.Size(55, 13);
             this.label1.TabIndex = 4;
             this.label1.Text = "Username";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
@@ -104,7 +107,6 @@
             this.PerformLayout();
 
         }
-
         #endregion
 
         private System.Windows.Forms.TextBox textBox1;

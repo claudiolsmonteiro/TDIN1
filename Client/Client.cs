@@ -12,10 +12,12 @@ namespace Client
         [STAThread]
         static void Main()
         {
-            RemObj c = (RemObj)RemotingServices.Connect(typeof(RemObj), "tcp://localhost:9000/RemObj/ListClients");
+            
+            RemotingConfiguration.Configure("Client.exe.config", false);
+            RemObj.RemObj rem = new RemObj.RemObj();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new Form1(rem));
         }
     }
 }

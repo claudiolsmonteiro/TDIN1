@@ -1,67 +1,120 @@
 ﻿using System;
-using System.Data;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Net;
-using System.Runtime.Remoting;
+using System.Threading;
 
-public class RemObj : MarshalByRefObject
+namespace RemObj
 {
-    Dictionary<string, string> users;
 
-    public RemObj()
+    public class RemObj : MarshalByRefObject
     {
-        users = new Dictionary<string, string>(); // bd de utilizadores
-    }
+        public event AlterDelegate alterEvent;
+        private Dictionary<string, string> users;
+        private List<User> onlineUsers;
 
-    public void login(string user, string password)
-    {
-        if (exist(user))
+        public override object InitializeLifetimeService()
         {
-            if (users[user].Equals(password))
+            return null;
+        }
+        public RemObj()
+        {
+            users = new Dictionary<string, string>(); // bd de utilizadores
+            onlineUsers = new List<User>(); // lista de utilizadores online
+        }
+
+        public int Login(string user, string password)
+        {
+            if (Exist(user))
             {
-                // login sucesso
+                if (users[user].Equals(password))
+                {
+                    User u = new User(user, password);
+                    // login sucesso
+
+                    onlineUsers.Add(u);
+                    NotifyClients(Operation.New, u);
+                    return 0;
+                }
+                else
+                {
+                    //password incorrecta
+                    return 1;
+                }
             }
             else
             {
-                //password incorrecta
+                //user nao existe
+                return 2;
             }
         }
-        else
+
+        void NotifyClients(Operation op, User item)
         {
-            //user nao existe
-        }
-    }
-    public void Register(string user, string password)
-    {
-        
-        if (exist(user))
-        {
-            //user ja existe        
-        }
-        else
-        {
-            //adiciona user a bd
-            users.Add(user, password);
+            if (alterEvent != null)
+            {
+                Delegate[] invkList = alterEvent.GetInvocationList();
+
+                foreach (AlterDelegate handler in invkList)
+                {
+                    new Thread(() => {
+                        try
+                        {
+                            handler(op, item);
+                            Console.WriteLine("Invoking event handler");
+                        }
+                        catch (Exception)
+                        {
+                            alterEvent -= handler;
+                            Console.WriteLine("Exception: Removed an event handler");
+                        }
+                    }).Start();
+                }
+            }
         }
 
-    }
-
-    private Boolean exist(string user)
-    {
-        if (users.ContainsKey(user))
+        public void Logout(User user)
         {
-            return true;
+            onlineUsers.Remove(user);
         }
-        else
-        {
-            return false;
-        }
-    }
 
-    public string listUsers()
-    {
-        // list all users
-        return "";
+        public int Register(string user, string password)
+        {
+
+            if (Exist(user))
+            {
+                return 2;
+            }
+            else
+            {
+                //adiciona user a bd
+                users.Add(user, password);
+                return 0;
+            }
+
+        }
+
+        private Boolean Exist(string user)
+        {
+            if (users.ContainsKey(user))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public List<string> ListOnlineUsers()
+        {
+            Console.WriteLine("GetList() called.");
+            // list all users
+            List<string> ret = new List<string>();
+            foreach (var entry in onlineUsers)
+            {
+                // do something with entry.Value or entry.Key
+                ret.Add(entry.Name);
+            }
+            return ret;
+        }
     }
 }

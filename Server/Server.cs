@@ -1,21 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Remoting;
-using System.Windows.Forms;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Server
 {
-    static class Server
+    class Server
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
-            RemotingConfiguration.RegisterWellKnownServiceType(typeof(RemObj), "ListClients",WellKnownObjectMode.Singleton);
+            RemotingConfiguration.Configure("Server.exe.config", false);
+            Console.WriteLine("[Server]: Press return to exit");
+            Console.ReadLine();
         }
     }
 }
