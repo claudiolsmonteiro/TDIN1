@@ -8,7 +8,7 @@ namespace RemObj
     public class RemObj : MarshalByRefObject
     {
         public event AlterDelegate alterEvent;
-        private Dictionary<string, string> users;
+        private Dictionary<string, string> registeredUsers;
         private List<User> onlineUsers;
 
         public override object InitializeLifetimeService()
@@ -17,7 +17,7 @@ namespace RemObj
         }
         public RemObj()
         {
-            users = new Dictionary<string, string>(); // bd de utilizadores
+            registeredUsers = new Dictionary<string, string>(); // bd de utilizadores
             onlineUsers = new List<User>(); // lista de utilizadores online
         }
 
@@ -25,7 +25,7 @@ namespace RemObj
         {
             if (Exist(user))
             {
-                if (users[user].Equals(password))
+                if (registeredUsers[user].Equals(password))
                 {
                     User u = new User(user, password);
                     // login sucesso
@@ -71,9 +71,17 @@ namespace RemObj
             }
         }
 
-        public void Logout(User user)
+        public void Logout(string user)
         {
-            onlineUsers.Remove(user);
+            foreach (var entry in onlineUsers)
+            {
+                // do something with entry.Value or entry.Key
+                if (entry.Name.Equals(user)) { 
+                    onlineUsers.Remove(entry);
+                    NotifyClients(Operation.Remove, entry);
+                    return;
+                }
+            }
         }
 
         public int Register(string user, string password)
@@ -86,7 +94,7 @@ namespace RemObj
             else
             {
                 //adiciona user a bd
-                users.Add(user, password);
+                registeredUsers.Add(user, password);
                 return 0;
             }
 
@@ -94,7 +102,7 @@ namespace RemObj
 
         private Boolean Exist(string user)
         {
-            if (users.ContainsKey(user))
+            if (registeredUsers.ContainsKey(user))
             {
                 return true;
             }
@@ -107,7 +115,7 @@ namespace RemObj
         public List<string> ListOnlineUsers()
         {
             Console.WriteLine("GetList() called.");
-            // list all users
+            // list all registeredUsers
             List<string> ret = new List<string>();
             foreach (var entry in onlineUsers)
             {

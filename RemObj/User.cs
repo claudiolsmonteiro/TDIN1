@@ -37,7 +37,7 @@ namespace RemObj
         }
     }
 
-    public enum Operation { New, Change };
+    public enum Operation { New, Remove };
 
     public delegate void AlterDelegate(Operation op, User item);
 
