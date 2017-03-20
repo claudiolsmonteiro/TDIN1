@@ -33,23 +33,39 @@ namespace Client
             evRepeater.alterEvent += new AlterDelegate(DoAlterations);
             rObj.alterEvent += new AlterDelegate(evRepeater.Repeater);
         }
+
         public ListViewItem GetItemtoDelete(string ClientName)
         {
-            ListViewItem listviewitem = new ListViewItem();
-            for (int i = 0; i < ClientList.Items.Count; i++)
+            ListViewItem listviewitem = null;
+            ListViewItem[] listItems;
+
+            if (InvokeRequired)
             {
-                listviewitem = ClientList.Items[i];
-                if (ClientName == listviewitem.Text)
+                listItems = (ListViewItem[])Invoke((MethodInvoker)delegate ()
                 {
-                    return listviewitem;
+                    foreach (ListViewItem i in ClientList.Items)
+                    {
+                        listviewitem = i;
+                        if (ClientName == listviewitem.Text)
+                            break;
+                    }
+                });
+            }
+            else
+            {
+                foreach (ListViewItem i in ClientList.Items)
+                {
+                    listviewitem = i;
+                    if (ClientName == listviewitem.Text)
+                        break;
                 }
             }
-            return null;
+            return listviewitem;
         }
+
         public void DoAlterations(Operation op, User item)
         {
             LVAddDelegate lvAdd;
-            LVRemoveDelegate lvRem;
             ListViewItem lvItem;
             switch (op)
             {
@@ -67,14 +83,14 @@ namespace Client
                         if (InvokeRequired)
                         {
                             Invoke((MethodInvoker)delegate () { ClientList.Items.Remove(listviewitem); });
+                            Invoke((MethodInvoker)delegate () { ClientList.Refresh(); });
                         }
                         else
                         {
                             ClientList.Items.Remove(listviewitem);
+                            ClientList.Refresh();
                         }
                     }
-                    ClientList.Refresh();
-
                     break;
             }
         }
@@ -107,11 +123,13 @@ namespace Client
                 }
             }
         }
+
         private void ClientWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             rObj.Logout(localuser);
             this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
             evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
+            Application.Exit();
 
         }
 
@@ -120,11 +138,7 @@ namespace Client
             rObj.Logout(localuser);
             this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
             evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
-        }
-
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
+            Application.Exit();
         }
     }
 }
