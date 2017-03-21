@@ -1,34 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections;
+using System.Runtime.Remoting;
 using System.Windows.Forms;
+using RemObj;
 
 namespace Client
 {
     public partial class Form1 : Form
     {
-        private RemObj.RemObj rObj;
-        public Form1(RemObj.RemObj r)
+        IUserService userService;
+
+        public Form1()
         {
             InitializeComponent();
-            rObj = r;
+            userService = (IUserService)R.New(typeof(IUserService));  // get reference to the singleton remote object
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
         {
-            int log = rObj.Login(this.UsernameTextBox.Text, this.PasswordTextBox.Text);
+            int log = userService.Login(this.UsernameTextBox.Text, this.PasswordTextBox.Text);
 
             switch (log)
             {
                 case 0:
                     //fechar este form e abrir o que tem a lista de users
                     this.Visible = false;
-                    var popup = new Popup(this.UsernameTextBox.Text, rObj);
+                    var popup = new Popup(this.UsernameTextBox.Text, userService);
                     popup.Show();
                     break;
                 case 1:
@@ -46,7 +43,7 @@ namespace Client
 
         private void RegisterButton_Click(object sender, EventArgs e)
         {
-            
+
             if (this.UsernameTextBox.Text.Length < 4 || this.UsernameTextBox.Text.Length > 10)
             {
                 MessageBox.Show("Username must have between 4 and 10 characters", "Invalid Username", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -58,7 +55,7 @@ namespace Client
                 return;
             }
 
-            int reg = rObj.Register(this.UsernameTextBox.Text, this.PasswordTextBox.Text);
+            int reg = userService.Register(this.UsernameTextBox.Text, this.PasswordTextBox.Text);
             switch (reg)
             {
                 case 0:
@@ -73,5 +70,32 @@ namespace Client
             }
         }
 
+    }
+
+    class R
+    {
+        private static IDictionary wellKnownTypes;
+
+        public static object New(Type type)
+        {
+            if (wellKnownTypes == null)
+                InitTypeCache();
+            WellKnownClientTypeEntry entry = (WellKnownClientTypeEntry)wellKnownTypes[type];
+            if (entry == null)
+                throw new RemotingException("Type not found!");
+            return Activator.GetObject(type, entry.ObjectUrl);
+        }
+
+        public static void InitTypeCache()
+        {
+            Hashtable types = new Hashtable();
+            foreach (WellKnownClientTypeEntry entry in RemotingConfiguration.GetRegisteredWellKnownClientTypes())
+            {
+                if (entry.ObjectType == null)
+                    throw new RemotingException("A configured type could not be found!");
+                types.Add(entry.ObjectType, entry);
+            }
+            wellKnownTypes = types;
+        }
     }
 }

@@ -51,7 +51,6 @@ namespace Client
             this.ClientList.Size = new System.Drawing.Size(374, 327);
             this.ClientList.TabIndex = 3;
             this.ClientList.UseCompatibleStateImageBehavior = false;
-            this.ClientList.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
             this.ClientList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
             // 
             // Popup
@@ -69,7 +68,7 @@ namespace Client
         }
 
         #endregion
-        
+
         private System.Windows.Forms.Button LogOut;
         private System.Windows.Forms.ListView ClientList;
     }

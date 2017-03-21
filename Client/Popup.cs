@@ -1,13 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.Remoting;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using RemObj;
 
@@ -21,9 +13,9 @@ namespace Client
         AlterEventRepeater evRepeater;
         delegate ListViewItem LVAddDelegate(ListViewItem lvItem);
         delegate void LVRemoveDelegate(ListViewItem lvItem);
-        private RemObj.RemObj rObj;
+        private RemObj.IUserService rObj;
 
-        public Popup(string n, RemObj.RemObj r)
+        public Popup(string n, RemObj.IUserService r)
         {
             InitializeComponent();
             localuser = n;
