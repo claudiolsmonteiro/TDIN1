@@ -60,7 +60,7 @@ namespace Client
             {
                 case 0:
                     //sucesso
-                    MessageBox.Show("Sucess!", "Register", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Success!", "Register", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     break;
                 case 2:
                     MessageBox.Show("Username already exists!");
