@@ -127,5 +127,18 @@ namespace Server
             }
             return ret;
         }
+
+        public void SendChatRequest(string user)
+        {
+            foreach (var entry in onlineUsers)
+            {
+                // do something with entry.Value or entry.Key
+                if (entry.Name.Equals(user))
+                {
+                    NotifyClients(RemObj.Operation.Request, entry);
+                    return;
+                }
+            }
+        }
     }
 }

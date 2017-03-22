@@ -2,7 +2,7 @@
 
 namespace Client
 {
-    partial class Form1
+    partial class LogWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -44,6 +44,7 @@ namespace Client
             this.UsernameTextBox.Name = "UsernameTextBox";
             this.UsernameTextBox.Size = new System.Drawing.Size(162, 20);
             this.UsernameTextBox.TabIndex = 0;
+            this.UsernameTextBox.TextChanged += new System.EventHandler(this.UsernameTextBox_TextChanged);
             // 
             // PasswordTextBox
             // 
@@ -90,7 +91,7 @@ namespace Client
             this.PasswordLabel.TabIndex = 5;
             this.PasswordLabel.Text = "Password";
             // 
-            // Form1
+            // LogWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -101,8 +102,9 @@ namespace Client
             this.Controls.Add(this.LogButton);
             this.Controls.Add(this.PasswordTextBox);
             this.Controls.Add(this.UsernameTextBox);
-            this.Name = "Register";
+            this.Name = "LogWindow";
             this.Text = "Register";
+            this.Load += new System.EventHandler(this.LogWindow_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

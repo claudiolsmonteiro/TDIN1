@@ -2,7 +2,7 @@
 
 namespace Client
 {
-    partial class Popup
+    partial class ClientListWindow
     {
         /// <summary>
         /// Required designer variable.

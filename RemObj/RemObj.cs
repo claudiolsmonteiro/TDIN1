@@ -11,6 +11,13 @@ namespace RemObj
         void Logout(string user);
         void NotifyClients(Operation op, User item);
         List<string> ListOnlineUsers();
+        void SendChatRequest(string user);
+        //void SendChatRequest(string[] user);
+        //void chatReject(string user);
     }
-   
+
+    public interface IChat
+    {
+
+    }
 }

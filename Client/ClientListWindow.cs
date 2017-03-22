@@ -5,9 +5,9 @@ using RemObj;
 
 namespace Client
 {
-    public partial class Popup : Form
+    public partial class ClientListWindow : Form
     {
-        private string localuser;
+        private string localUserName;
         private List<string> items;
         event AlterDelegate alterEvent;
         AlterEventRepeater evRepeater;
@@ -15,10 +15,10 @@ namespace Client
         delegate void LVRemoveDelegate(ListViewItem lvItem);
         private RemObj.IUserService rObj;
 
-        public Popup(string n, RemObj.IUserService r)
+        public ClientListWindow(string n, RemObj.IUserService r)
         {
             InitializeComponent();
-            localuser = n;
+            localUserName = n;
             rObj = r;
             items = rObj.ListOnlineUsers();
             evRepeater = new AlterEventRepeater();
@@ -62,11 +62,11 @@ namespace Client
             switch (op)
             {
                 case Operation.New:
-
                     lvAdd = new LVAddDelegate(ClientList.Items.Add);
                     lvItem = new ListViewItem(new string[] { item.Name });
                     BeginInvoke(lvAdd, new object[] { lvItem });
                     break;
+
                 case Operation.Remove:
                     ListViewItem listviewitem = new ListViewItem();
                     listviewitem = GetItemtoDelete(item.Name);
@@ -84,6 +84,14 @@ namespace Client
                         }
                     }
                     break;
+
+                case Operation.Request:
+                    if (item.Name.Equals(localUserName))
+                    {
+                        var chatRequest = new ChatRequestWindow(item.Name, this, rObj);
+                        chatRequest.Show();
+                    }
+                    break;
             }
         }
 
@@ -96,6 +104,7 @@ namespace Client
             {
                 // send chat request
                 MessageBox.Show("The selected Item Name is: " + item.Text);
+                rObj.SendChatRequest(item.Text);
             }
             else
             {
@@ -108,7 +117,7 @@ namespace Client
         {
             foreach (string name in items)
             {
-                if (name != localuser)
+                if (name != localUserName)
                 {
                     ListViewItem lvItem = new ListViewItem(new string[] { name });
                     ClientList.Items.Add(lvItem);
@@ -118,7 +127,7 @@ namespace Client
 
         private void ClientWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
-            rObj.Logout(localuser);
+            rObj.Logout(localUserName);
             this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
             evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
             Application.Exit();
@@ -127,7 +136,7 @@ namespace Client
 
         private void LogoutButton_Click(object sender, EventArgs e)
         {
-            rObj.Logout(localuser);
+            rObj.Logout(localUserName);
             this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
             evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
             Application.Exit();

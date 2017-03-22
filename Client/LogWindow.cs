@@ -6,14 +6,16 @@ using RemObj;
 
 namespace Client
 {
-    public partial class Form1 : Form
+    public partial class LogWindow : Form
     {
         IUserService userService;
+        int port;
 
-        public Form1()
+        public LogWindow(int p)
         {
             InitializeComponent();
             userService = (IUserService)R.New(typeof(IUserService));  // get reference to the singleton remote object
+            port = p;
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
@@ -25,7 +27,7 @@ namespace Client
                 case 0:
                     //fechar este form e abrir o que tem a lista de users
                     this.Visible = false;
-                    var popup = new Popup(this.UsernameTextBox.Text, userService);
+                    var popup = new ClientListWindow(this.UsernameTextBox.Text, userService);
                     popup.Show();
                     break;
                 case 1:
@@ -70,6 +72,15 @@ namespace Client
             }
         }
 
+        private void LogWindow_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void UsernameTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
     class R
