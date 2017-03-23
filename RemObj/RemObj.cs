@@ -14,6 +14,7 @@ namespace RemObj
         void SendChatRequest(string user);
         //void SendChatRequest(string[] user);
         //void chatReject(string user);
+        void Print(string m);
     }
 
     public interface IChat

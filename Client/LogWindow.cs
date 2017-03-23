@@ -28,7 +28,7 @@ namespace Client
                     //fechar este form e abrir o que tem a lista de users
                     this.Visible = false;
                     var popup = new ClientListWindow(this.UsernameTextBox.Text, userService);
-                    popup.Show();
+                    popup.ShowDialog();
                     break;
                 case 1:
                     //password errada

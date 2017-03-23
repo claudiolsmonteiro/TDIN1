@@ -91,7 +91,7 @@ namespace Server
                         try
                         {
                             handler(op, item);
-                            Console.WriteLine("Invoking event handler");
+                            Console.WriteLine("Invoking event handler on " + item.Name);
                         }
                         catch (Exception)
                         {
@@ -139,6 +139,11 @@ namespace Server
                     return;
                 }
             }
+        }
+
+        public void Print(string m)
+        {
+            Console.WriteLine(m);
         }
     }
 }

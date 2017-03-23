@@ -74,7 +74,8 @@
             this.Name = "ChatRequestWindow";
             this.Text = "ChatRequestWindow";
             this.ResumeLayout(false);
-            this.PerformLayout();
+            this.Load += new System.EventHandler(this.ChatReqWindow_Load);
+            //this.PerformLayout();
 
         }
 

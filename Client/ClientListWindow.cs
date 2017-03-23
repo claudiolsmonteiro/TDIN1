@@ -88,8 +88,8 @@ namespace Client
                 case Operation.Request:
                     if (item.Name.Equals(localUserName))
                     {
-                        var chatRequest = new ChatRequestWindow(item.Name, this, rObj);
-                        chatRequest.Show();
+                        var chatRequest = new ChatRequestWindow(item.Name, rObj);
+                        chatRequest.ShowDialog();
                     }
                     break;
             }
@@ -103,7 +103,7 @@ namespace Client
             if (item != null)
             {
                 // send chat request
-                MessageBox.Show("The selected Item Name is: " + item.Text);
+                //MessageBox.Show("The selected Item Name is: " + item.Text);
                 rObj.SendChatRequest(item.Text);
             }
             else

@@ -12,28 +12,31 @@ namespace Client
 {
     public partial class ChatRequestWindow : Form
     {
-        ClientListWindow previousWindow;
         string remoteUserName;
         private RemObj.IUserService rObj;
 
-        public ChatRequestWindow(string name, ClientListWindow win, RemObj.IUserService r)
+        public ChatRequestWindow(string name, RemObj.IUserService r)
         {
             InitializeComponent();
-            previousWindow = win;
             remoteUserName = name;
             rObj = r;
-            //this.ChatTextBox.Text = "" + remoteUserName + " wants to start a conversation with you!";
+            this.ChatTextBox.Text = "" + remoteUserName + " wants to start a conversation with you!";
         }
 
         private void AcceptRequest(object sender, EventArgs e)
         {
-            previousWindow.Close();
+            this.Close();
         }
 
         private void DenyRequest(object sender, EventArgs e)
         {
             this.Close();
             //
+        }
+
+        private void ChatReqWindow_Load(object sender, EventArgs e)
+        {
+            this.ChatTextBox.Text = "" + remoteUserName + " wants to start a conversation with you!";
         }
     }
 }
