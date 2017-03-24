@@ -136,7 +136,7 @@ namespace Client
             }
         }
 
-        private void ClientWindow_FormClosed(object sender, FormClosedEventArgs e)
+        private void ClientWindow_FormClosed(object sender, FormClosingEventArgs e)
         {
             rObj.Logout(localUserName);
             this.alterEvent -= new AlterDelegate(evRepeater.Repeater);

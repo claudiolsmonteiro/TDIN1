@@ -23,6 +23,7 @@ namespace RemObj
         event RemObj.ChatDelegate alterEventChat;
 
         void SendMessage(string user, string message);
+        void CloseChat(string me,string other);
     }
     
 }

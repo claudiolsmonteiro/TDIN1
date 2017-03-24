@@ -40,7 +40,7 @@ namespace RemObj
     }
 
     public enum Operation { New, Remove, Request, Accept, Reject };
-    public enum ChatOperation { NewMsg, Remove };
+    public enum ChatOperation { NewMsg, Remove, CloseChat };
 
     public delegate void AlterDelegate(Operation op, User item, string[] remUser);
 

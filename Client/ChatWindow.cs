@@ -16,6 +16,7 @@ namespace Client
     public partial class ChatWindow : Form
     {
         private string localUsername, remoteUsername;
+        private int port;
         private List<string> items;
         event ChatDelegate alterEventChat;
         ChatEventRepeater evRepeater;
@@ -66,30 +67,50 @@ namespace Client
                     }
                     if (InvokeRequired)
                     {
-                        Invoke((MethodInvoker) delegate() { ChatBox.AppendText(msg); });
+                        Invoke((MethodInvoker)delegate () { ChatBox.AppendText(msg); });
                         Invoke((MethodInvoker)delegate () { ChatBox.Refresh(); });
-                        }
+                    }
                     else
                     {
                         ChatBox.AppendText(msg);
                         ChatBox.Refresh();
                     }
                     break;
-                    /*
-                case Operation.Accept:
-                    if (item.Name.Equals(localUserName))
+                case ChatOperation.CloseChat:
+                    if (InvokeRequired)
                     {
-
-                        var chatWindow = new ChatWindow("OWN", localPort, localUserName);
-                        chatWindow.ShowDialog();
+                        if (message == localUsername)
+                        {
+                            Invoke((MethodInvoker)delegate () { evRepeater.alterEventChat -= new ChatDelegate(DoAlterations); });
+                            Invoke((MethodInvoker)delegate () { chatService.alterEventChat -= new ChatDelegate(evRepeater.Repeater); });
+                            Invoke((MethodInvoker)delegate () { Close(); });
+                        }
                     }
-                    break;*/
+                    else
+                    {
+                        if (message == localUsername)
+                        {
+                            evRepeater.alterEventChat -= new ChatDelegate(DoAlterations);
+                            chatService.alterEventChat -= new ChatDelegate(evRepeater.Repeater);
+                            Close();
+                        }
+                    }
+                    break;
+
             }
         }
 
         private void ChatWindow_Load(object sender, EventArgs e)
         {
-            
+
+        }
+
+        private void ChatWindow_Closed(object sender, FormClosingEventArgs e)
+        {
+            chatService.CloseChat(localUsername, remoteUsername);
+            this.alterEventChat -= new ChatDelegate(DoAlterations);
+            evRepeater.alterEventChat -= new ChatDelegate(evRepeater.Repeater);
+
         }
     }
 
@@ -112,6 +133,11 @@ namespace Client
             NotifyClients(RemObj.ChatOperation.NewMsg, user, message);
         }
 
+        public void CloseChat(string me, string other)
+        {
+            NotifyClients(RemObj.ChatOperation.CloseChat, me, other);
+        }
+
         public void NotifyClients(RemObj.ChatOperation op, string user, string message)
         {
             if (alterEventChat != null)
@@ -125,7 +151,7 @@ namespace Client
                         try
                         {
                             handler(op, user, message);
-                           // Console.WriteLine("Invoking event handler on " + item.Name);
+                            // Console.WriteLine("Invoking event handler on " + item.Name);
                         }
                         catch (Exception)
                         {

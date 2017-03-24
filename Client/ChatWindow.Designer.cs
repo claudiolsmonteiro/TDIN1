@@ -73,6 +73,7 @@
             this.ResumeLayout(false);
             this.Load += new System.EventHandler(this.ChatWindow_Load);
             this.PerformLayout();
+            this.FormClosing += ChatWindow_Closed;
 
         }
 

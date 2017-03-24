@@ -64,6 +64,7 @@ namespace Client
             this.Text = "Client List";
             this.Load += new System.EventHandler(this.ClientWindow_Load);
             this.ResumeLayout(false);
+            this.FormClosing += ClientWindow_FormClosed;
 
         }
 
