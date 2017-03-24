@@ -14,7 +14,7 @@ namespace Client
         public LogWindow(int p)
         {
             InitializeComponent();
-            userService = (IUserService)R.New(typeof(IUserService));  // get reference to the singleton remote object
+            userService = (IUserService)RemObj.R.New(typeof(IUserService));  // get reference to the singleton remote object
             port = p;
         }
 
@@ -27,7 +27,7 @@ namespace Client
                 case 0:
                     //fechar este form e abrir o que tem a lista de users
                     this.Visible = false;
-                    var popup = new ClientListWindow(this.UsernameTextBox.Text, userService);
+                    var popup = new ClientListWindow(this.UsernameTextBox.Text, userService, port);
                     popup.ShowDialog();
                     break;
                 case 1:
@@ -80,33 +80,6 @@ namespace Client
         private void UsernameTextBox_TextChanged(object sender, EventArgs e)
         {
 
-        }
-    }
-
-    class R
-    {
-        private static IDictionary wellKnownTypes;
-
-        public static object New(Type type)
-        {
-            if (wellKnownTypes == null)
-                InitTypeCache();
-            WellKnownClientTypeEntry entry = (WellKnownClientTypeEntry)wellKnownTypes[type];
-            if (entry == null)
-                throw new RemotingException("Type not found!");
-            return Activator.GetObject(type, entry.ObjectUrl);
-        }
-
-        public static void InitTypeCache()
-        {
-            Hashtable types = new Hashtable();
-            foreach (WellKnownClientTypeEntry entry in RemotingConfiguration.GetRegisteredWellKnownClientTypes())
-            {
-                if (entry.ObjectType == null)
-                    throw new RemotingException("A configured type could not be found!");
-                types.Add(entry.ObjectType, entry);
-            }
-            wellKnownTypes = types;
         }
     }
 }

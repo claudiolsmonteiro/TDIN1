@@ -48,7 +48,7 @@ namespace Server
                     // login sucesso
 
                     onlineUsers.Add(u);
-                    NotifyClients(RemObj.Operation.New, u);
+                    NotifyClients(RemObj.Operation.New, u, null);
                     return 0;
                 }
                 else
@@ -72,13 +72,13 @@ namespace Server
                 if (entry.Name.Equals(user))
                 {
                     onlineUsers.Remove(entry);
-                    NotifyClients(RemObj.Operation.Remove, entry);
+                    NotifyClients(RemObj.Operation.Remove, entry, null );
                     return;
                 }
             }
         }
 
-        public void NotifyClients(RemObj.Operation op, RemObj.User item)
+        public void NotifyClients(RemObj.Operation op, RemObj.User item, string[] remUser)
         {
             if (alterEvent != null)
             {
@@ -90,7 +90,7 @@ namespace Server
                     {
                         try
                         {
-                            handler(op, item);
+                            handler(op, item, remUser );
                             Console.WriteLine("Invoking event handler on " + item.Name);
                         }
                         catch (Exception)
@@ -128,14 +128,32 @@ namespace Server
             return ret;
         }
 
-        public void SendChatRequest(string user)
+        public void SendChatRequest(string user, string remUser, string port)
         {
+
             foreach (var entry in onlineUsers)
             {
                 // do something with entry.Value or entry.Key
                 if (entry.Name.Equals(user))
                 {
-                    NotifyClients(RemObj.Operation.Request, entry);
+                    string[] rem = new string[2];
+                    rem[0] = remUser;
+                    rem[1] = port;
+                    NotifyClients(RemObj.Operation.Request, entry, rem);
+                    return;
+                }
+            }
+        }
+
+        public void AcceptRequest(string user, string me)
+        {
+            foreach (var entry in onlineUsers)
+            {
+                if (entry.Name.Equals(user))
+                {
+                    String[] rm = new string[1];
+                    rm[0] = me;
+                    NotifyClients(RemObj.Operation.Accept, entry, rm);
                     return;
                 }
             }

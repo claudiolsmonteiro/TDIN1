@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using RemObj;
 
 namespace Client
@@ -8,18 +10,19 @@ namespace Client
     public partial class ClientListWindow : Form
     {
         private string localUserName;
+        private int localPort;
         private List<string> items;
         event AlterDelegate alterEvent;
         AlterEventRepeater evRepeater;
         delegate ListViewItem LVAddDelegate(ListViewItem lvItem);
-        delegate void LVRemoveDelegate(ListViewItem lvItem);
         private RemObj.IUserService rObj;
 
-        public ClientListWindow(string n, RemObj.IUserService r)
+        public ClientListWindow(string n, RemObj.IUserService r, int p)
         {
             InitializeComponent();
             localUserName = n;
             rObj = r;
+            localPort = p;
             items = rObj.ListOnlineUsers();
             evRepeater = new AlterEventRepeater();
             evRepeater.alterEvent += new AlterDelegate(DoAlterations);
@@ -55,7 +58,7 @@ namespace Client
             return listviewitem;
         }
 
-        public void DoAlterations(Operation op, User item)
+        public void DoAlterations(Operation op, User item,string[] remUser)
         {
             LVAddDelegate lvAdd;
             ListViewItem lvItem;
@@ -88,8 +91,16 @@ namespace Client
                 case Operation.Request:
                     if (item.Name.Equals(localUserName))
                     {
-                        var chatRequest = new ChatRequestWindow(item.Name, rObj);
+                        var chatRequest = new ChatRequestWindow(remUser[0], rObj, remUser[1], localUserName);
                         chatRequest.ShowDialog();
+                    }
+                    break;
+                case Operation.Accept:
+                    if (item.Name.Equals(localUserName))
+                    {
+
+                        var chatWindow = new ChatWindow("OWN", localPort, localUserName, remUser[0]);
+                        chatWindow.ShowDialog();
                     }
                     break;
             }
@@ -104,7 +115,7 @@ namespace Client
             {
                 // send chat request
                 //MessageBox.Show("The selected Item Name is: " + item.Text);
-                rObj.SendChatRequest(item.Text);
+                rObj.SendChatRequest(item.Text, localUserName, localPort.ToString());
             }
             else
             {
