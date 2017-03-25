@@ -25,8 +25,6 @@ namespace Client
 
         public ChatWindow(String owner, int port, string local, string rem)
         {
-            InitializeComponent();
-
             switch (owner)
             {
                 case "OWN":
@@ -40,16 +38,19 @@ namespace Client
             }
             localUsername = local;
             remoteUsername = rem;
-            this.Text = remoteUsername;
+
 
             evRepeater = new ChatEventRepeater();
             evRepeater.alterEventChat += new ChatDelegate(DoAlterations);
             chatService.alterEventChat += new ChatDelegate(evRepeater.Repeater);
+            InitializeComponent();
+            this.Text = remoteUsername;
         }
 
         private void SendMessage(object sender, EventArgs e)
         {
             chatService.SendMessage(localUsername, this.MessageBox.Text);
+            MessageBox.Clear();
         }
 
 
@@ -81,18 +82,29 @@ namespace Client
                     {
                         if (message == localUsername)
                         {
-                            Invoke((MethodInvoker)delegate () { evRepeater.alterEventChat -= new ChatDelegate(DoAlterations); });
-                            Invoke((MethodInvoker)delegate () { chatService.alterEventChat -= new ChatDelegate(evRepeater.Repeater); });
-                            Invoke((MethodInvoker)delegate () { Close(); });
+                            if(IsDisposed == false)
+                            Invoke((MethodInvoker)delegate () {
+                                try
+                                {
+                                    Close();
+                                }
+                                catch (ObjectDisposedException)
+                                {
+                                    return;
+                                } });
+                            else
+                            {
+                                return;
+                            }
+
                         }
                     }
                     else
                     {
                         if (message == localUsername)
                         {
-                            evRepeater.alterEventChat -= new ChatDelegate(DoAlterations);
-                            chatService.alterEventChat -= new ChatDelegate(evRepeater.Repeater);
                             Close();
+
                         }
                     }
                     break;
@@ -108,8 +120,14 @@ namespace Client
         private void ChatWindow_Closed(object sender, FormClosingEventArgs e)
         {
             chatService.CloseChat(localUsername, remoteUsername);
-            this.alterEventChat -= new ChatDelegate(DoAlterations);
+
+        }
+        private void ChatWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            alterEventChat -= new ChatDelegate(DoAlterations);
             evRepeater.alterEventChat -= new ChatDelegate(evRepeater.Repeater);
+
+
 
         }
     }

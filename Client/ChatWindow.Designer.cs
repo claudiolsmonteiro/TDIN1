@@ -71,9 +71,11 @@
             this.Name = "ChatWindow";
             this.Text = "Form1";
             this.ResumeLayout(false);
-            this.Load += new System.EventHandler(this.ChatWindow_Load);
+            //this.Load += new System.EventHandler(this.ChatWindow_Load);
             this.PerformLayout();
-            this.FormClosing += ChatWindow_Closed;
+            this.FormClosing += (ChatWindow_Closed);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ChatWindow_FormClosed);
+
 
         }
 
