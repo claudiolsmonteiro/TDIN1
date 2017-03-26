@@ -40,9 +40,13 @@ namespace Client
 
         private void DenyRequest(object sender, EventArgs e)
         {
-
+            rObj.DenyRequest(remoteUserName, localUserName);
             this.Close();
-            //
+        }
+
+        private void ChatRequestWindow_Closed(object sender, FormClosingEventArgs e)
+        {
+            rObj.DenyRequest(remoteUserName, localUserName);
         }
     }
 }

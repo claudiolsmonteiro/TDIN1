@@ -31,6 +31,7 @@
             this.SendButton = new System.Windows.Forms.Button();
             this.MsgBox = new System.Windows.Forms.TextBox();
             this.ChatBox = new System.Windows.Forms.TextBox();
+            this.SendFileButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SendButton
@@ -39,15 +40,15 @@
             this.SendButton.Name = "SendButton";
             this.SendButton.Size = new System.Drawing.Size(75, 23);
             this.SendButton.TabIndex = 0;
-            this.SendButton.Text = "Send";
+            this.SendButton.Text = "SendMsg";
             this.SendButton.UseVisualStyleBackColor = true;
             this.SendButton.Click += new System.EventHandler(this.SendMessage);
             // 
-            // MessageBox
+            // MsgBox
             // 
             this.MsgBox.Location = new System.Drawing.Point(43, 448);
             this.MsgBox.Multiline = true;
-            this.MsgBox.Name = "MessageBox";
+            this.MsgBox.Name = "MsgBox";
             this.MsgBox.Size = new System.Drawing.Size(513, 44);
             this.MsgBox.TabIndex = 1;
             // 
@@ -58,23 +59,33 @@
             this.ChatBox.Name = "ChatBox";
             this.ChatBox.Size = new System.Drawing.Size(513, 357);
             this.ChatBox.TabIndex = 2;
-            //this.ChatBox.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            // 
+            // SendFileButton
+            // 
+            this.SendFileButton.Location = new System.Drawing.Point(592, 363);
+            this.SendFileButton.Name = "SendFileButton";
+            this.SendFileButton.Size = new System.Drawing.Size(75, 23);
+            this.SendFileButton.TabIndex = 3;
+            this.SendFileButton.Text = "SendFile";
+            this.SendFileButton.UseVisualStyleBackColor = true;
+            this.SendFileButton.Click += new System.EventHandler(this.SendFile);
             // 
             // ChatWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(721, 536);
+            this.Controls.Add(this.SendFileButton);
             this.Controls.Add(this.ChatBox);
             this.Controls.Add(this.MsgBox);
             this.Controls.Add(this.SendButton);
             this.Name = "ChatWindow";
             this.Text = "Form1";
-            this.ResumeLayout(false);
-            //this.Load += new System.EventHandler(this.ChatWindow_Load);
-            this.PerformLayout();
-            this.FormClosing += (ChatWindow_Closed);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ChatWindow_FormClosed);
+            this.Load += new System.EventHandler(this.ChatWindow_Load_1);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
@@ -82,5 +93,6 @@
         private System.Windows.Forms.Button SendButton;
         private System.Windows.Forms.TextBox MsgBox;
         private System.Windows.Forms.TextBox ChatBox;
+        private System.Windows.Forms.Button SendFileButton;
     }
 }

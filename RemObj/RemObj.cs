@@ -6,6 +6,7 @@ namespace RemObj
     {
         event RemObj.AlterDelegate alterEvent;
 
+        void LoadUsers();
         int Register(string user, string password);
         int Login(string user, string password);
         void Logout(string user);
@@ -14,6 +15,7 @@ namespace RemObj
         void SendChatRequest(string target,string me, string myport);
         void SendMultipleChatRequest(List<string> targets, string me, string myport);
         void AcceptRequest(string user,string me);
+        void DenyRequest(string user, string me);
         //void SendChatRequest(string[] user);
         //void chatReject(string user);
         void Print(string m);

@@ -63,6 +63,14 @@ namespace Client
             MsgBox.Clear();
         }
 
+        private void SendFile(object sender, EventArgs e)
+        {
+            OpenFileDialog browse = new OpenFileDialog();
+            browse.ShowDialog();
+            //chatService.SendMessage(localUsername, this.MsgBox.Text);
+            //MsgBox.Clear();
+        }
+
 
         public void DoAlterations(ChatOperation op, string user, string message)
         {
@@ -162,6 +170,12 @@ namespace Client
             }
                 
         }
+
+        private void ChatWindow_Load_1(object sender, EventArgs e)
+        {
+
+        }
+
         private void ChatWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             alterEventChat -= new ChatDelegate(DoAlterations);

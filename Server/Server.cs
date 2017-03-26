@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.Remoting;
 using System.Threading;
 using RemObj;
+using System.IO;
+using System.Reflection;
 
 namespace Server
 {
@@ -21,6 +23,36 @@ namespace Server
         private Dictionary<string, string> registeredUsers = new Dictionary<string, string>();
         private List<RemObj.User> onlineUsers =  new List<RemObj.User>();
         public event AlterDelegate alterEvent;
+        bool loaded = false;
+
+
+        public void LoadUsers()
+        {
+            if (!loaded)
+            {
+                string path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
+
+                if (!File.Exists(path))
+                {
+                    File.Create(path);
+                }
+                else
+                {
+                    string[] text = System.IO.File.ReadAllLines(path);
+                    List<string> usernames = new List<string>();
+                    List<string> passwords = new List<string>();
+
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        registeredUsers.Add(text[i], text[i + 1]);
+                        i++;
+                    }
+                }
+                loaded = true;
+            }
+
+            
+        }
 
         public int Register(string user, string password)
         {
@@ -32,6 +64,14 @@ namespace Server
             else
             {
                 //adiciona user a bd
+                string path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
+
+                using (StreamWriter sw = File.AppendText(path))
+                {
+                    sw.WriteLine(user);
+                    sw.WriteLine(password);
+                }
+
                 registeredUsers.Add(user, password);
                 return 0;
             }
@@ -180,6 +220,22 @@ namespace Server
                     List<User> l = new List<User>();
                     l.Add(entry);
                     NotifyClients(RemObj.Operation.Accept, l, rm);
+                    return;
+                }
+            }
+        }
+
+        public void DenyRequest(string user, string me)
+        {
+            foreach (var entry in onlineUsers)
+            {
+                if (entry.Name.Equals(user))
+                {
+                    String[] rm = new string[1];
+                    rm[0] = me;
+                    List<User> l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(RemObj.Operation.Reject, l, rm);
                     return;
                 }
             }

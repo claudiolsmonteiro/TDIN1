@@ -16,6 +16,7 @@ namespace Client
             InitializeComponent();
             userService = (IUserService)RemObj.R.New(typeof(IUserService));  // get reference to the singleton remote object
             port = p;
+            userService.LoadUsers();
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
@@ -45,7 +46,7 @@ namespace Client
 
         private void RegisterButton_Click(object sender, EventArgs e)
         {
-
+            
             if (this.UsernameTextBox.Text.Length < 4 || this.UsernameTextBox.Text.Length > 10)
             {
                 MessageBox.Show("Username must have between 4 and 10 characters", "Invalid Username", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
