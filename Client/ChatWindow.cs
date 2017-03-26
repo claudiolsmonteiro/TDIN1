@@ -17,40 +17,50 @@ namespace Client
     {
         private string localUsername, remoteUsername;
         private int port;
-        private List<string> items;
         event ChatDelegate alterEventChat;
         ChatEventRepeater evRepeater;
-        //delegate ListViewItem LVAddDelegate(ListViewItem lvItem);
         private RemObj.IChat chatService;
+        bool isOwner;
 
-        public ChatWindow(String owner, int port, string local, string rem)
+        public ChatWindow(String owner, int p, string local, string rem)
         {
             switch (owner)
             {
                 case "OWN":
+                    isOwner = true;
                     RemotingConfiguration.RegisterWellKnownServiceType(typeof(ChatService), "Chat", WellKnownObjectMode.Singleton);  // register my remote object for servic
-                    chatService = (ChatService)RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + port.ToString() + "/Chat");    // connect to the registered my remote object here
+                    chatService = (ChatService)RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + p.ToString() + "/Chat");    // connect to the registered my remote object here
                     break;
 
                 case "REMOTE":
-                    chatService = (ChatService)RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + port.ToString() + "/Chat");
+                    isOwner = false;
+                    chatService = (ChatService)RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + p.ToString() + "/Chat");
                     break;
             }
+
             localUsername = local;
             remoteUsername = rem;
-
+            port = p;
+            chatService.AddUserInChat(localUsername);
 
             evRepeater = new ChatEventRepeater();
             evRepeater.alterEventChat += new ChatDelegate(DoAlterations);
             chatService.alterEventChat += new ChatDelegate(evRepeater.Repeater);
             InitializeComponent();
-            this.Text = remoteUsername;
+
+            string title = "";
+            foreach(string s in chatService.GetUsersInChat())
+            {
+                if(!s.Equals(localUsername))
+                    title += s + ",";
+            }
+            this.Text = title;
         }
 
         private void SendMessage(object sender, EventArgs e)
         {
-            chatService.SendMessage(localUsername, this.MessageBox.Text);
-            MessageBox.Clear();
+            chatService.SendMessage(localUsername, this.MsgBox.Text);
+            MsgBox.Clear();
         }
 
 
@@ -96,7 +106,6 @@ namespace Client
                             {
                                 return;
                             }
-
                         }
                     }
                     else
@@ -104,11 +113,24 @@ namespace Client
                         if (message == localUsername)
                         {
                             Close();
-
                         }
                     }
                     break;
+                case ChatOperation.NewUser:
+                    String title = this.Text;
 
+                    if (!localUsername.Equals(user))
+                        title += "," + user;
+
+                    if (InvokeRequired)
+                    {
+                        Invoke((MethodInvoker)delegate () { this.Text = title; });
+                    }
+                    else
+                    {
+                        this.Text = title;
+                    }
+                    break;
             }
         }
 
@@ -119,16 +141,31 @@ namespace Client
 
         private void ChatWindow_Closed(object sender, FormClosingEventArgs e)
         {
-            chatService.CloseChat(localUsername, remoteUsername);
-
+            if (chatService.GetUsersInChat().Count() < 3)
+            {
+                MessageBox.Show("USERS < 3");
+                chatService.CloseChat(localUsername, remoteUsername);
+            }
+            else if (isOwner)
+            {
+                MessageBox.Show("IsOwner");
+                foreach (string s in chatService.GetUsersInChat())
+                {
+                    if(!s.Equals(localUsername))
+                        chatService.CloseChat(localUsername, s);
+                }
+            }
+            else
+            {
+                MessageBox.Show("SóFechar");
+                chatService.RemoveUser(localUsername);
+            }
+                
         }
         private void ChatWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
             alterEventChat -= new ChatDelegate(DoAlterations);
             evRepeater.alterEventChat -= new ChatDelegate(evRepeater.Repeater);
-
-
-
         }
     }
 
@@ -145,6 +182,7 @@ namespace Client
     public class ChatService : MarshalByRefObject, IChat
     {
         public event RemObj.ChatDelegate alterEventChat;
+        List<string> usersInChat = new List<string>();
 
         public void SendMessage(string user, string message)
         {
@@ -153,7 +191,7 @@ namespace Client
 
         public void CloseChat(string me, string other)
         {
-            NotifyClients(RemObj.ChatOperation.CloseChat, me, other);
+                NotifyClients(RemObj.ChatOperation.CloseChat, me, other);
         }
 
         public void NotifyClients(RemObj.ChatOperation op, string user, string message)
@@ -179,6 +217,22 @@ namespace Client
                     }).Start();
                 }
             }
+        }
+
+        public void AddUserInChat(string u)
+        {
+            usersInChat.Add(u);
+            NotifyClients(RemObj.ChatOperation.NewUser, u, null);
+        }
+
+        public List<string> GetUsersInChat()
+        {
+            return usersInChat;
+        }
+
+        public void RemoveUser(string u)
+        {
+            usersInChat.Remove(u);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Client
         AlterEventRepeater evRepeater;
         delegate ListViewItem LVAddDelegate(ListViewItem lvItem);
         private RemObj.IUserService rObj;
+        bool chatInitiated;
+        int pending;
 
         public ClientListWindow(string n, RemObj.IUserService r, int p)
         {
@@ -24,6 +26,8 @@ namespace Client
             rObj = r;
             localPort = p;
             items = rObj.ListOnlineUsers();
+            chatInitiated = false;
+            pending = 0;
             evRepeater = new AlterEventRepeater();
             evRepeater.alterEvent += new AlterDelegate(DoAlterations);
             rObj.alterEvent += new AlterDelegate(evRepeater.Repeater);
@@ -58,7 +62,7 @@ namespace Client
             return listviewitem;
         }
 
-        public void DoAlterations(Operation op, User item,string[] remUser)
+        public void DoAlterations(Operation op, List<User> item,string[] remUser)
         {
             LVAddDelegate lvAdd;
             ListViewItem lvItem;
@@ -66,13 +70,13 @@ namespace Client
             {
                 case Operation.New:
                     lvAdd = new LVAddDelegate(ClientList.Items.Add);
-                    lvItem = new ListViewItem(new string[] { item.Name });
+                    lvItem = new ListViewItem(new string[] { item[0].Name });
                     BeginInvoke(lvAdd, new object[] { lvItem });
                     break;
 
                 case Operation.Remove:
                     ListViewItem listviewitem = new ListViewItem();
-                    listviewitem = GetItemtoDelete(item.Name);
+                    listviewitem = GetItemtoDelete(item[0].Name);
                     if (listviewitem != null)
                     {
                         if (InvokeRequired)
@@ -89,18 +93,36 @@ namespace Client
                     break;
 
                 case Operation.Request:
-                    if (item.Name.Equals(localUserName))
+
+                    foreach(User u in item)
                     {
-                        var chatRequest = new ChatRequestWindow(remUser[0], rObj, remUser[1], localUserName);
-                        chatRequest.ShowDialog();
+                        if(u.Name.Equals(localUserName))
+                        {
+                            var chatRequest = new ChatRequestWindow(remUser[0], rObj, remUser[1], localUserName);
+                            chatRequest.ShowDialog();
+                        }
                     }
                     break;
                 case Operation.Accept:
-                    if (item.Name.Equals(localUserName))
+                    if (item[0].Name.Equals(localUserName))
                     {
-
-                        var chatWindow = new ChatWindow("OWN", localPort, localUserName, remUser[0]);
-                        chatWindow.ShowDialog();
+                        if (!chatInitiated)
+                        {
+                            chatInitiated = true;
+                            var chatWindow = new ChatWindow("OWN", localPort, localUserName, remUser[0]);
+                            chatWindow.ShowDialog();
+                        }
+                        pending--;
+                        if (pending == 0)
+                            chatInitiated = false;
+                    }
+                    break;
+                case Operation.Reject:
+                    if (item[0].Name.Equals(localUserName))
+                    {
+                        pending--;
+                        if (pending == 0)
+                            chatInitiated = false;
                     }
                     break;
             }
@@ -114,7 +136,6 @@ namespace Client
             if (item != null)
             {
                 // send chat request
-                //MessageBox.Show("The selected Item Name is: " + item.Text);
                 rObj.SendChatRequest(item.Text, localUserName, localPort.ToString());
             }
             else
@@ -122,6 +143,20 @@ namespace Client
                 this.ClientList.SelectedItems.Clear();
                 MessageBox.Show("No Item is selected");
             }
+            pending = 1;
+        }
+
+        private void InitChatButton_Click(object sender, EventArgs e)
+        {
+            ListView.SelectedListViewItemCollection selectedItems = ClientList.SelectedItems;
+            List<string> targets = new List<string>();
+            foreach (ListViewItem i in selectedItems)
+            {
+                targets.Add(i.Text);
+                pending++;
+            }
+            
+            rObj.SendMultipleChatRequest(targets, localUserName, localPort.ToString());
         }
 
         private void ClientWindow_Load(object sender, EventArgs e)
@@ -151,6 +186,11 @@ namespace Client
             this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
             evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
             Application.Exit();
+        }
+
+        private void ClientList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

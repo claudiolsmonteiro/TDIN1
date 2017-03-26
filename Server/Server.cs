@@ -48,7 +48,9 @@ namespace Server
                     // login sucesso
 
                     onlineUsers.Add(u);
-                    NotifyClients(RemObj.Operation.New, u, null);
+                    List<User> l = new List<User>();
+                    l.Add(u);
+                    NotifyClients(RemObj.Operation.New, l, null);
                     return 0;
                 }
                 else
@@ -72,13 +74,15 @@ namespace Server
                 if (entry.Name.Equals(user))
                 {
                     onlineUsers.Remove(entry);
-                    NotifyClients(RemObj.Operation.Remove, entry, null );
+                    List<User> l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(RemObj.Operation.Remove, l, null );
                     return;
                 }
             }
         }
 
-        public void NotifyClients(RemObj.Operation op, RemObj.User item, string[] remUser)
+        public void NotifyClients(RemObj.Operation op, List<User> item, string[] remUser)
         {
             if (alterEvent != null)
             {
@@ -91,7 +95,7 @@ namespace Server
                         try
                         {
                             handler(op, item, remUser );
-                            Console.WriteLine("Invoking event handler on " + item.Name);
+                            Console.WriteLine("Invoking event handler on " + item[0].Name);
                         }
                         catch (Exception)
                         {
@@ -128,21 +132,41 @@ namespace Server
             return ret;
         }
 
-        public void SendChatRequest(string user, string remUser, string port)
+        public void SendChatRequest(string target, string me, string myport)
         {
 
             foreach (var entry in onlineUsers)
             {
                 // do something with entry.Value or entry.Key
-                if (entry.Name.Equals(user))
+                if (entry.Name.Equals(target))
                 {
                     string[] rem = new string[2];
-                    rem[0] = remUser;
-                    rem[1] = port;
-                    NotifyClients(RemObj.Operation.Request, entry, rem);
+                    rem[0] = me;
+                    rem[1] = myport;
+                    List<User> l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(RemObj.Operation.Request, l, rem);
                     return;
                 }
             }
+        }
+
+        public void SendMultipleChatRequest(List<string> targets, string me, string myport)
+        {
+            List<User> l = new List<User>();
+            string[] rem = new string[2];
+            foreach (var entry in onlineUsers)
+            {
+                // do something with entry.Value or entry.Key
+                if (targets.Contains(entry.Name))
+                {
+                    rem[0] = me;
+                    rem[1] = myport;
+                    l.Add(entry);
+                }
+            }
+            NotifyClients(RemObj.Operation.Request, l, rem);
+            return;
         }
 
         public void AcceptRequest(string user, string me)
@@ -153,7 +177,9 @@ namespace Server
                 {
                     String[] rm = new string[1];
                     rm[0] = me;
-                    NotifyClients(RemObj.Operation.Accept, entry, rm);
+                    List<User> l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(RemObj.Operation.Accept, l, rm);
                     return;
                 }
             }

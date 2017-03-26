@@ -40,9 +40,9 @@ namespace RemObj
     }
 
     public enum Operation { New, Remove, Request, Accept, Reject };
-    public enum ChatOperation { NewMsg, Remove, CloseChat };
+    public enum ChatOperation { NewMsg, Remove, CloseChat, NewUser };
 
-    public delegate void AlterDelegate(Operation op, User item, string[] remUser);
+    public delegate void AlterDelegate(Operation op, List<User> item, string[] remUser);
 
     public delegate void ChatDelegate(ChatOperation op, string user, string message); 
 
@@ -55,7 +55,7 @@ namespace RemObj
             return null;
         }
 
-        public void Repeater(Operation op, User item, string[] remUser)
+        public void Repeater(Operation op, List<User> item, string[] remUser)
         {
             if (alterEvent != null)
                 alterEvent(op, item, remUser);

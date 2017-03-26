@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.SendButton = new System.Windows.Forms.Button();
-            this.MessageBox = new System.Windows.Forms.TextBox();
+            this.MsgBox = new System.Windows.Forms.TextBox();
             this.ChatBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
@@ -45,11 +45,11 @@
             // 
             // MessageBox
             // 
-            this.MessageBox.Location = new System.Drawing.Point(43, 448);
-            this.MessageBox.Multiline = true;
-            this.MessageBox.Name = "MessageBox";
-            this.MessageBox.Size = new System.Drawing.Size(513, 44);
-            this.MessageBox.TabIndex = 1;
+            this.MsgBox.Location = new System.Drawing.Point(43, 448);
+            this.MsgBox.Multiline = true;
+            this.MsgBox.Name = "MessageBox";
+            this.MsgBox.Size = new System.Drawing.Size(513, 44);
+            this.MsgBox.TabIndex = 1;
             // 
             // ChatBox
             // 
@@ -66,7 +66,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(721, 536);
             this.Controls.Add(this.ChatBox);
-            this.Controls.Add(this.MessageBox);
+            this.Controls.Add(this.MsgBox);
             this.Controls.Add(this.SendButton);
             this.Name = "ChatWindow";
             this.Text = "Form1";
@@ -75,14 +75,12 @@
             this.PerformLayout();
             this.FormClosing += (ChatWindow_Closed);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ChatWindow_FormClosed);
-
-
         }
 
         #endregion
 
         private System.Windows.Forms.Button SendButton;
-        private System.Windows.Forms.TextBox MessageBox;
+        private System.Windows.Forms.TextBox MsgBox;
         private System.Windows.Forms.TextBox ChatBox;
     }
 }

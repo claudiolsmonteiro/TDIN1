@@ -32,11 +32,12 @@ namespace Client
         {
             this.LogOut = new System.Windows.Forms.Button();
             this.ClientList = new System.Windows.Forms.ListView();
+            this.InitChatButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // LogOut
             // 
-            this.LogOut.Location = new System.Drawing.Point(154, 333);
+            this.LogOut.Location = new System.Drawing.Point(289, 332);
             this.LogOut.Name = "LogOut";
             this.LogOut.Size = new System.Drawing.Size(75, 23);
             this.LogOut.TabIndex = 2;
@@ -51,16 +52,28 @@ namespace Client
             this.ClientList.Size = new System.Drawing.Size(374, 327);
             this.ClientList.TabIndex = 3;
             this.ClientList.UseCompatibleStateImageBehavior = false;
+            this.ClientList.SelectedIndexChanged += new System.EventHandler(this.ClientList_SelectedIndexChanged);
             this.ClientList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
             // 
-            // Popup
+            // initChatButton
+            // 
+            this.InitChatButton.Location = new System.Drawing.Point(12, 332);
+            this.InitChatButton.Name = "initChatButton";
+            this.InitChatButton.Size = new System.Drawing.Size(75, 23);
+            this.InitChatButton.TabIndex = 4;
+            this.InitChatButton.Text = "Chat";
+            this.InitChatButton.UseVisualStyleBackColor = true;
+            this.InitChatButton.Click += new System.EventHandler(this.InitChatButton_Click);
+            // 
+            // ClientListWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(376, 368);
+            this.Controls.Add(this.InitChatButton);
             this.Controls.Add(this.ClientList);
             this.Controls.Add(this.LogOut);
-            this.Name = "Popup";
+            this.Name = "ClientListWindow";
             this.Text = "Client List";
             this.Load += new System.EventHandler(this.ClientWindow_Load);
             this.ResumeLayout(false);
@@ -72,5 +85,6 @@ namespace Client
 
         private System.Windows.Forms.Button LogOut;
         private System.Windows.Forms.ListView ClientList;
+        private Button InitChatButton;
     }
 }
