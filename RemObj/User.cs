@@ -42,6 +42,7 @@ namespace RemObj
         Remove,
         Request,
         Accept,
+        AcceptSingle,
         Reject
     }
 

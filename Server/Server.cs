@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Threading;
 using RemObj;
@@ -146,9 +147,10 @@ namespace Server
             foreach (var entry in onlineUsers)
                 if (entry.Name.Equals(target))
                 {
-                    var rem = new string[2];
+                    var rem = new string[3];
                     rem[0] = me;
                     rem[1] = myport;
+                    rem[2] = target;
                     var l = new List<User>();
                     l.Add(entry);
                     NotifyClients(Operation.Request, l, rem);
@@ -159,24 +161,26 @@ namespace Server
         public void SendMultipleChatRequest(List<string> targets, string me, string myport)
         {
             var l = new List<User>();
-            var rem = new string[2];
+            var rem = new string[3];
             foreach (var entry in onlineUsers)
                 if (targets.Contains(entry.Name))
                 {
                     rem[0] = me;
                     rem[1] = myport;
+                    rem[2] = "mult";
                     l.Add(entry);
                 }
             NotifyClients(Operation.Request, l, rem);
         }
 
-        public void AcceptRequest(string user, string me)
+        public void AcceptRequest(string user, string me, string t)
         {
             foreach (var entry in onlineUsers)
                 if (entry.Name.Equals(user))
                 {
-                    var rm = new string[1];
+                    var rm = new string[2];
                     rm[0] = me;
+                    rm[1] = t;
                     var l = new List<User>();
                     l.Add(entry);
                     NotifyClients(Operation.Accept, l, rm);

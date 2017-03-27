@@ -9,23 +9,25 @@ namespace Client
         private readonly int port;
         private readonly string remoteUserName;
         private readonly string localUserName;
+        private readonly string type;
         private readonly IUserService rObj;
 
-        public ChatRequestWindow(string name, IUserService r, string p, string localName)
+        public ChatRequestWindow(string name, string t, IUserService r, string p, string localName)
         {
             InitializeComponent();
             remoteUserName = name;
             rObj = r;
             port = int.Parse(p);
             localUserName = localName;
+            type = t;
             ChatTextBox.Text = "" + remoteUserName + " wants to start a conversation with you!";
         }
 
         private void AcceptRequest(object sender, EventArgs e)
         {
-            rObj.AcceptRequest(remoteUserName, localUserName);
+            rObj.AcceptRequest(remoteUserName, localUserName, type);
             Visible = false;
-            var chatWindow = new ChatWindow("REMOTE", port, localUserName, remoteUserName);
+            var chatWindow = new ChatWindow("REMOTE", type, port, localUserName, remoteUserName);
             chatWindow.ShowDialog();
 
             Close();

@@ -17,25 +17,29 @@ namespace Client
         private readonly string remoteUsername;
         private int port;
 
-        public ChatWindow(string owner, int p, string local, string rem)
+        public ChatWindow(string owner, string type, int p, string local, string rem)
         {
             switch (owner)
             {
                 case "OWN":
                     isOwner = true;
-                    RemotingConfiguration.RegisterWellKnownServiceType(typeof(ChatService), "Chat",
+
+                    RemotingConfiguration.RegisterWellKnownServiceType(typeof(ChatService), "Chat/" + type,
                         WellKnownObjectMode.Singleton); // register my remote object for servic
-                    chatService =
-                        (ChatService) RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + p + "/Chat");
-                        // connect to the registered my remote object here
+                    chatService = (ChatService)RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + p + "/Chat/" + type);
+                    MessageBox.Show("  owner tcp://localhost:" + p + "/Chat/" + rem);
+
+                    // connect to the registered my remote object here
                     break;
 
                 case "REMOTE":
                     isOwner = false;
-                    chatService =
-                        (ChatService) RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + p + "/Chat");
+                    chatService = (ChatService)RemotingServices.Connect(typeof(ChatService), "tcp://localhost:" + p + "/Chat/" + type);
+                    MessageBox.Show(" client tcp://localhost:" + p + "/Chat/" + type);
+
                     break;
             }
+
 
             localUsername = local;
             remoteUsername = rem;
@@ -65,8 +69,29 @@ namespace Client
             chatService.SendMessage(localUsername, MsgBox.Text);
             MsgBox.Clear();
         }
+        /*
+                [STAThread]
+                private void SendFile(object sender, EventArgs e)
+                {
+                    try
+                    {
+                        Thread t = new Thread(() => {
+                            OpenFileDialog dlg = new OpenFileDialog();
+                            // The following would not return the dialog if the current
+                            // thread is not STA
+                            var result = dlg.ShowDialog();
+                        });
 
-
+                        t.SetApartmentState(ApartmentState.STA);
+                        t.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle the exception
+                        ex.LogException();
+                    }
+                }
+        */
         public void DoAlterations(ChatOperation op, string user, string message)
         {
             switch (op)
@@ -79,8 +104,8 @@ namespace Client
                         msg = user + ": " + message + Environment.NewLine;
                     if (InvokeRequired)
                     {
-                        Invoke((MethodInvoker) delegate { ChatBox.AppendText(msg); });
-                        Invoke((MethodInvoker) delegate { ChatBox.Refresh(); });
+                        Invoke((MethodInvoker)delegate { ChatBox.AppendText(msg); });
+                        Invoke((MethodInvoker)delegate { ChatBox.Refresh(); });
                     }
                     else
                     {
@@ -93,16 +118,16 @@ namespace Client
                     {
                         if (message == localUsername)
                             if (IsDisposed == false)
-                                Invoke((MethodInvoker) delegate
-                                {
-                                    try
-                                    {
-                                        Close();
-                                    }
-                                    catch (ObjectDisposedException)
-                                    {
-                                    }
-                                });
+                                Invoke((MethodInvoker)delegate
+                               {
+                                   try
+                                   {
+                                       Close();
+                                   }
+                                   catch (ObjectDisposedException)
+                                   {
+                                   }
+                               });
                             else
                                 return;
                     }
@@ -125,7 +150,7 @@ namespace Client
 
 
                     if (InvokeRequired)
-                        Invoke((MethodInvoker) delegate { Text = title; });
+                        Invoke((MethodInvoker)delegate { Text = title; });
                     else
                         Text = title;
                     break;
@@ -144,8 +169,8 @@ namespace Client
                 foreach (var s in chatService.GetUsersInChat())
                     if (!s.Equals(localUsername))
                         chatService.CloseChat(localUsername, s);
-            else
-                chatService.RemoveUser(localUsername);
+                    else
+                        chatService.RemoveUser(localUsername);
         }
 
 
@@ -166,6 +191,11 @@ namespace Client
         public void SendMessage(string user, string message)
         {
             NotifyClients(ChatOperation.NewMsg, user, message);
+        }
+
+        public void SendFile(string user, byte[] file)
+        {
+
         }
 
         public void CloseChat(string me, string other)

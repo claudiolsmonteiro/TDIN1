@@ -14,7 +14,7 @@ namespace RemObj
         List<string> ListOnlineUsers();
         void SendChatRequest(string target, string me, string myport);
         void SendMultipleChatRequest(List<string> targets, string me, string myport);
-        void AcceptRequest(string user, string me);
+        void AcceptRequest(string user, string me, string t);
         void DenyRequest(string user, string me);
         void Print(string m);
     }
