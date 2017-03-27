@@ -1,25 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using RemObj;
 
 namespace Client
 {
     public partial class ClientListWindow : Form
     {
-        private string localUserName;
-        private int localPort;
-        private List<string> items;
-        event AlterDelegate alterEvent;
-        AlterEventRepeater evRepeater;
-        delegate ListViewItem LVAddDelegate(ListViewItem lvItem);
-        private RemObj.IUserService rObj;
-        bool chatInitiated;
-        int pending;
+        private bool chatInitiated;
+        private readonly AlterEventRepeater evRepeater;
+        private readonly List<string> items;
+        private readonly int localPort;
+        private readonly string localUserName;
+        private int pending;
+        private readonly IUserService rObj;
 
-        public ClientListWindow(string n, RemObj.IUserService r, int p)
+        public ClientListWindow(string n, IUserService r, int p)
         {
             InitializeComponent();
             localUserName = n;
@@ -28,11 +24,13 @@ namespace Client
             items = rObj.ListOnlineUsers();
             chatInitiated = false;
             pending = 0;
-            this.Text += ": "+localUserName;
+            Text += ": " + localUserName;
             evRepeater = new AlterEventRepeater();
-            evRepeater.alterEvent += new AlterDelegate(DoAlterations);
-            rObj.alterEvent += new AlterDelegate(evRepeater.Repeater);
+            evRepeater.alterEvent += DoAlterations;
+            rObj.alterEvent += evRepeater.Repeater;
         }
+
+        private event AlterDelegate alterEvent;
 
         public ListViewItem GetItemtoDelete(string ClientName)
         {
@@ -40,8 +38,7 @@ namespace Client
             ListViewItem[] listItems;
 
             if (InvokeRequired)
-            {
-                listItems = (ListViewItem[])Invoke((MethodInvoker)delegate ()
+                listItems = (ListViewItem[]) Invoke((MethodInvoker) delegate
                 {
                     foreach (ListViewItem i in ClientList.Items)
                     {
@@ -50,59 +47,52 @@ namespace Client
                             break;
                     }
                 });
-            }
             else
-            {
                 foreach (ListViewItem i in ClientList.Items)
                 {
                     listviewitem = i;
                     if (ClientName == listviewitem.Text)
                         break;
                 }
-            }
             return listviewitem;
         }
 
-        public void DoAlterations(Operation op, List<User> item,string[] remUser)
+        public void DoAlterations(Operation op, List<User> item, string[] remUser)
         {
             LVAddDelegate lvAdd;
             ListViewItem lvItem;
             switch (op)
             {
                 case Operation.New:
-                    lvAdd = new LVAddDelegate(ClientList.Items.Add);
-                    lvItem = new ListViewItem(new string[] { item[0].Name });
-                    BeginInvoke(lvAdd, new object[] { lvItem });
+                    lvAdd = ClientList.Items.Add;
+                    lvItem = new ListViewItem(new[] {item[0].Name});
+                    BeginInvoke(lvAdd, lvItem);
                     break;
 
                 case Operation.Remove:
-                    ListViewItem listviewitem = new ListViewItem();
+                    var listviewitem = new ListViewItem();
                     listviewitem = GetItemtoDelete(item[0].Name);
                     if (listviewitem != null)
-                    {
                         if (InvokeRequired)
                         {
-                            Invoke((MethodInvoker)delegate () { ClientList.Items.Remove(listviewitem); });
-                            Invoke((MethodInvoker)delegate () { ClientList.Refresh(); });
+                            Invoke((MethodInvoker) delegate { ClientList.Items.Remove(listviewitem); });
+                            Invoke((MethodInvoker) delegate { ClientList.Refresh(); });
                         }
                         else
                         {
                             ClientList.Items.Remove(listviewitem);
                             ClientList.Refresh();
                         }
-                    }
                     break;
 
                 case Operation.Request:
 
-                    foreach(User u in item)
-                    {
-                        if(u.Name.Equals(localUserName))
+                    foreach (var u in item)
+                        if (u.Name.Equals(localUserName))
                         {
                             var chatRequest = new ChatRequestWindow(remUser[0], rObj, remUser[1], localUserName);
                             chatRequest.ShowDialog();
                         }
-                    }
                     break;
                 case Operation.Accept:
                     if (item[0].Name.Equals(localUserName))
@@ -132,8 +122,8 @@ namespace Client
 
         private void listView1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            ListViewHitTestInfo info = ClientList.HitTest(e.X, e.Y);
-            ListViewItem item = info.Item;
+            var info = ClientList.HitTest(e.X, e.Y);
+            var item = info.Item;
 
             if (item != null)
             {
@@ -142,7 +132,7 @@ namespace Client
             }
             else
             {
-                this.ClientList.SelectedItems.Clear();
+                ClientList.SelectedItems.Clear();
                 MessageBox.Show("No Item is selected");
             }
             pending = 1;
@@ -152,49 +142,44 @@ namespace Client
         {
             if (ClientList.SelectedItems.Count == 0)
                 return;
-            ListView.SelectedListViewItemCollection selectedItems = ClientList.SelectedItems;
-            List<string> targets = new List<string>();
+            var selectedItems = ClientList.SelectedItems;
+            var targets = new List<string>();
             foreach (ListViewItem i in selectedItems)
-            {
                 targets.Add(i.Text);
-                //pending++;
-            }
             pending = targets.Count;
             rObj.SendMultipleChatRequest(targets, localUserName, localPort.ToString());
         }
 
         private void ClientWindow_Load(object sender, EventArgs e)
         {
-            foreach (string name in items)
-            {
+            foreach (var name in items)
                 if (name != localUserName)
                 {
-                    ListViewItem lvItem = new ListViewItem(new string[] { name });
+                    var lvItem = new ListViewItem(new[] {name});
                     ClientList.Items.Add(lvItem);
                 }
-            }
         }
 
         private void ClientWindow_FormClosed(object sender, FormClosingEventArgs e)
         {
             rObj.Logout(localUserName);
-            this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
-            evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
+            alterEvent -= evRepeater.Repeater;
+            evRepeater.alterEvent -= DoAlterations;
             Application.Exit();
-
         }
 
         private void LogoutButton_Click(object sender, EventArgs e)
         {
             rObj.Logout(localUserName);
-            this.alterEvent -= new AlterDelegate(evRepeater.Repeater);
-            evRepeater.alterEvent -= new AlterDelegate(DoAlterations);
+            alterEvent -= evRepeater.Repeater;
+            evRepeater.alterEvent -= DoAlterations;
             Application.Exit();
         }
 
         private void ClientList_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
+
+        private delegate ListViewItem LVAddDelegate(ListViewItem lvItem);
     }
 }

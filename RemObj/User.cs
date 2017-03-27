@@ -1,30 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Remoting;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RemObj
 {
     [Serializable]
     public class User
     {
-
         private string name;
         private string password;
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
-        public string Password
-        {
-            get { return password; }
-            set { password = value; }
-        }
 
         public User()
         {
@@ -37,14 +22,40 @@ namespace RemObj
             name = user;
             password = pass;
         }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
     }
 
-    public enum Operation { New, Remove, Request, Accept, Reject };
-    public enum ChatOperation { NewMsg, Remove, CloseChat, NewUser };
+    public enum Operation
+    {
+        New,
+        Remove,
+        Request,
+        Accept,
+        Reject
+    }
+
+    public enum ChatOperation
+    {
+        NewMsg,
+        Remove,
+        CloseChat,
+        NewUser
+    }
 
     public delegate void AlterDelegate(Operation op, List<User> item, string[] remUser);
 
-    public delegate void ChatDelegate(ChatOperation op, string user, string message); 
+    public delegate void ChatDelegate(ChatOperation op, string user, string message);
 
     public class AlterEventRepeater : MarshalByRefObject
     {
@@ -86,7 +97,7 @@ namespace RemObj
         {
             if (wellKnownTypes == null)
                 InitTypeCache();
-            WellKnownClientTypeEntry entry = (WellKnownClientTypeEntry)wellKnownTypes[type];
+            var entry = (WellKnownClientTypeEntry) wellKnownTypes[type];
             if (entry == null)
                 throw new RemotingException("Type not found!");
             return Activator.GetObject(type, entry.ObjectUrl);
@@ -94,8 +105,8 @@ namespace RemObj
 
         public static void InitTypeCache()
         {
-            Hashtable types = new Hashtable();
-            foreach (WellKnownClientTypeEntry entry in RemotingConfiguration.GetRegisteredWellKnownClientTypes())
+            var types = new Hashtable();
+            foreach (var entry in RemotingConfiguration.GetRegisteredWellKnownClientTypes())
             {
                 if (entry.ObjectType == null)
                     throw new RemotingException("A configured type could not be found!");

@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Remoting;
 using System.Threading;
 using RemObj;
-using System.IO;
-using System.Reflection;
 
 namespace Server
 {
-    class Server
+    internal class Server
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             RemotingConfiguration.Configure("Server.exe.config", false);
             Console.WriteLine("[Server]: Press return to exit");
@@ -18,19 +17,19 @@ namespace Server
         }
     }
 
-    public class UserService : MarshalByRefObject, RemObj.IUserService
+    public class UserService : MarshalByRefObject, IUserService
     {
-        private Dictionary<string, string> registeredUsers = new Dictionary<string, string>();
-        private List<RemObj.User> onlineUsers = new List<RemObj.User>();
+        private bool loaded;
+        private readonly List<User> onlineUsers = new List<User>();
+        private readonly Dictionary<string, string> registeredUsers = new Dictionary<string, string>();
         public event AlterDelegate alterEvent;
-        bool loaded = false;
 
 
         public void LoadUsers()
         {
             if (!loaded)
             {
-                string path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
+                var path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
 
                 if (!File.Exists(path))
                 {
@@ -38,11 +37,11 @@ namespace Server
                 }
                 else
                 {
-                    string[] text = System.IO.File.ReadAllLines(path);
-                    List<string> usernames = new List<string>();
-                    List<string> passwords = new List<string>();
+                    var text = File.ReadAllLines(path);
+                    var usernames = new List<string>();
+                    var passwords = new List<string>();
 
-                    for (int i = 0; i < text.Length; i++)
+                    for (var i = 0; i < text.Length; i++)
                     {
                         registeredUsers.Add(text[i], text[i + 1]);
                         i++;
@@ -50,89 +49,72 @@ namespace Server
                 }
                 loaded = true;
             }
-
-
         }
 
         public int Register(string user, string password)
         {
-
             if (Exist(user))
-            {
                 return 2;
-            }
-            else
+            //adiciona user a bd
+            var path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
+
+            using (var sw = File.AppendText(path))
             {
-                //adiciona user a bd
-                string path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
-
-                using (StreamWriter sw = File.AppendText(path))
-                {
-                    sw.WriteLine(user);
-                    sw.WriteLine(password);
-                }
-
-                registeredUsers.Add(user, password);
-                return 0;
+                sw.WriteLine(user);
+                sw.WriteLine(password);
             }
 
+            registeredUsers.Add(user, password);
+            return 0;
         }
 
         public int Login(string user, string password)
         {
             if (Exist(user))
-            {
                 if (isLogged(user))
+                {
                     return 3;
+                }
                 else if (registeredUsers[user].Equals(password))
                 {
-                    RemObj.User u = new RemObj.User(user, password);
+                    var u = new User(user, password);
                     // login sucesso
 
                     onlineUsers.Add(u);
-                    List<User> l = new List<User>();
+                    var l = new List<User>();
                     l.Add(u);
-                    NotifyClients(RemObj.Operation.New, l, null);
+                    NotifyClients(Operation.New, l, null);
                     return 0;
                 }
-               
+
                 else
                 {
                     //password incorrecta
                     return 1;
                 }
-            }
-            else
-            {
-                //user nao existe
-                return 2;
-            }
+            return 2;
         }
 
         public void Logout(string user)
         {
             foreach (var entry in onlineUsers)
-            {
-                // do something with entry.Value or entry.Key
                 if (entry.Name.Equals(user))
                 {
                     onlineUsers.Remove(entry);
-                    List<User> l = new List<User>();
+                    var l = new List<User>();
                     l.Add(entry);
-                    NotifyClients(RemObj.Operation.Remove, l, null);
+                    NotifyClients(Operation.Remove, l, null);
                     return;
                 }
-            }
         }
 
-        public void NotifyClients(RemObj.Operation op, List<User> item, string[] remUser)
+        public void NotifyClients(Operation op, List<User> item, string[] remUser)
         {
             if (alterEvent != null)
             {
-                Delegate[] invkList = alterEvent.GetInvocationList();
+                var invkList = alterEvent.GetInvocationList();
 
-                foreach (RemObj.AlterDelegate handler in invkList)
-                {
+                foreach (AlterDelegate handler in invkList)
                     new Thread(() =>
                     {
                         try
@@ -146,114 +128,93 @@ namespace Server
                             Console.WriteLine("Exception: Removed an event handler");
                         }
                     }).Start();
-                }
             }
         }
 
-        private Boolean Exist(string user)
+        public List<string> ListOnlineUsers()
+        {
+            Console.WriteLine("GetList() called.");
+            // list all registeredUsers
+            var ret = new List<string>();
+            foreach (var entry in onlineUsers)
+                ret.Add(entry.Name);
+            return ret;
+        }
+
+        public void SendChatRequest(string target, string me, string myport)
+        {
+            foreach (var entry in onlineUsers)
+                if (entry.Name.Equals(target))
+                {
+                    var rem = new string[2];
+                    rem[0] = me;
+                    rem[1] = myport;
+                    var l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(Operation.Request, l, rem);
+                    return;
+                }
+        }
+
+        public void SendMultipleChatRequest(List<string> targets, string me, string myport)
+        {
+            var l = new List<User>();
+            var rem = new string[2];
+            foreach (var entry in onlineUsers)
+                if (targets.Contains(entry.Name))
+                {
+                    rem[0] = me;
+                    rem[1] = myport;
+                    l.Add(entry);
+                }
+            NotifyClients(Operation.Request, l, rem);
+        }
+
+        public void AcceptRequest(string user, string me)
+        {
+            foreach (var entry in onlineUsers)
+                if (entry.Name.Equals(user))
+                {
+                    var rm = new string[1];
+                    rm[0] = me;
+                    var l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(Operation.Accept, l, rm);
+                    return;
+                }
+        }
+
+        public void DenyRequest(string user, string me)
+        {
+            foreach (var entry in onlineUsers)
+                if (entry.Name.Equals(user))
+                {
+                    var rm = new string[1];
+                    rm[0] = me;
+                    var l = new List<User>();
+                    l.Add(entry);
+                    NotifyClients(Operation.Reject, l, rm);
+                    return;
+                }
+        }
+
+        public void Print(string m)
+        {
+            Console.WriteLine(m);
+        }
+
+        private bool Exist(string user)
         {
             if (registeredUsers.ContainsKey(user))
-            {
                 return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
-        private Boolean isLogged(string user)
+        private bool isLogged(string user)
         {
             if (ListOnlineUsers().Contains(user))
                 return true;
             return false;
         }
-
-    public List<string> ListOnlineUsers()
-    {
-        Console.WriteLine("GetList() called.");
-        // list all registeredUsers
-        List<string> ret = new List<string>();
-        foreach (var entry in onlineUsers)
-        {
-            // do something with entry.Value or entry.Key
-            ret.Add(entry.Name);
-        }
-        return ret;
     }
-
-    public void SendChatRequest(string target, string me, string myport)
-    {
-
-        foreach (var entry in onlineUsers)
-        {
-            // do something with entry.Value or entry.Key
-            if (entry.Name.Equals(target))
-            {
-                string[] rem = new string[2];
-                rem[0] = me;
-                rem[1] = myport;
-                List<User> l = new List<User>();
-                l.Add(entry);
-                NotifyClients(RemObj.Operation.Request, l, rem);
-                return;
-            }
-        }
-    }
-
-    public void SendMultipleChatRequest(List<string> targets, string me, string myport)
-    {
-        List<User> l = new List<User>();
-        string[] rem = new string[2];
-        foreach (var entry in onlineUsers)
-        {
-            // do something with entry.Value or entry.Key
-            if (targets.Contains(entry.Name))
-            {
-                rem[0] = me;
-                rem[1] = myport;
-                l.Add(entry);
-            }
-        }
-        NotifyClients(RemObj.Operation.Request, l, rem);
-        return;
-    }
-
-    public void AcceptRequest(string user, string me)
-    {
-        foreach (var entry in onlineUsers)
-        {
-            if (entry.Name.Equals(user))
-            {
-                String[] rm = new string[1];
-                rm[0] = me;
-                List<User> l = new List<User>();
-                l.Add(entry);
-                NotifyClients(RemObj.Operation.Accept, l, rm);
-                return;
-            }
-        }
-    }
-
-    public void DenyRequest(string user, string me)
-    {
-        foreach (var entry in onlineUsers)
-        {
-            if (entry.Name.Equals(user))
-            {
-                String[] rm = new string[1];
-                rm[0] = me;
-                List<User> l = new List<User>();
-                l.Add(entry);
-                NotifyClients(RemObj.Operation.Reject, l, rm);
-                return;
-            }
-        }
-    }
-
-    public void Print(string m)
-    {
-        Console.WriteLine(m);
-    }
-}
 }
