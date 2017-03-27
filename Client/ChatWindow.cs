@@ -49,11 +49,15 @@ namespace Client
             InitializeComponent();
 
             string title = "";
-            foreach(string s in chatService.GetUsersInChat())
+            foreach (string s in chatService.GetUsersInChat())
             {
-                if(!s.Equals(localUsername))
+                if (!s.Equals(localUsername))
                     title += s + ",";
             }
+
+            title = title.Replace(",,", ",");
+            title = title.TrimStart(',');
+            title = title.TrimEnd(',');
             this.Text = title;
         }
 
@@ -61,14 +65,6 @@ namespace Client
         {
             chatService.SendMessage(localUsername, this.MsgBox.Text);
             MsgBox.Clear();
-        }
-
-        private void SendFile(object sender, EventArgs e)
-        {
-            OpenFileDialog browse = new OpenFileDialog();
-            browse.ShowDialog();
-            //chatService.SendMessage(localUsername, this.MsgBox.Text);
-            //MsgBox.Clear();
         }
 
 
@@ -100,16 +96,18 @@ namespace Client
                     {
                         if (message == localUsername)
                         {
-                            if(IsDisposed == false)
-                            Invoke((MethodInvoker)delegate () {
-                                try
+                            if (IsDisposed == false)
+                                Invoke((MethodInvoker)delegate ()
                                 {
-                                    Close();
-                                }
-                                catch (ObjectDisposedException)
-                                {
-                                    return;
-                                } });
+                                    try
+                                    {
+                                        Close();
+                                    }
+                                    catch (ObjectDisposedException)
+                                    {
+                                        return;
+                                    }
+                                });
                             else
                             {
                                 return;
@@ -128,7 +126,13 @@ namespace Client
                     String title = this.Text;
 
                     if (!localUsername.Equals(user))
+                    {
                         title += "," + user;
+                        title = title.Replace(",,", ",");
+                        title = title.TrimStart(',');
+                        title = title.TrimEnd(',');
+                    }
+
 
                     if (InvokeRequired)
                     {
@@ -136,6 +140,7 @@ namespace Client
                     }
                     else
                     {
+
                         this.Text = title;
                     }
                     break;
@@ -151,33 +156,27 @@ namespace Client
         {
             if (chatService.GetUsersInChat().Count() < 3)
             {
-                MessageBox.Show("USERS < 3");
                 chatService.CloseChat(localUsername, remoteUsername);
             }
             else if (isOwner)
             {
-                MessageBox.Show("IsOwner");
                 foreach (string s in chatService.GetUsersInChat())
                 {
-                    if(!s.Equals(localUsername))
+                    if (!s.Equals(localUsername))
                         chatService.CloseChat(localUsername, s);
                 }
             }
             else
             {
-                MessageBox.Show("SóFechar");
                 chatService.RemoveUser(localUsername);
             }
-                
-        }
-
-        private void ChatWindow_Load_1(object sender, EventArgs e)
-        {
 
         }
+
 
         private void ChatWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
+            chatService.RemoveUser(localUsername);
             alterEventChat -= new ChatDelegate(DoAlterations);
             evRepeater.alterEventChat -= new ChatDelegate(evRepeater.Repeater);
         }
@@ -205,7 +204,7 @@ namespace Client
 
         public void CloseChat(string me, string other)
         {
-                NotifyClients(RemObj.ChatOperation.CloseChat, me, other);
+            NotifyClients(RemObj.ChatOperation.CloseChat, me, other);
         }
 
         public void NotifyClients(RemObj.ChatOperation op, string user, string message)

@@ -21,7 +21,7 @@ namespace Server
     public class UserService : MarshalByRefObject, RemObj.IUserService
     {
         private Dictionary<string, string> registeredUsers = new Dictionary<string, string>();
-        private List<RemObj.User> onlineUsers =  new List<RemObj.User>();
+        private List<RemObj.User> onlineUsers = new List<RemObj.User>();
         public event AlterDelegate alterEvent;
         bool loaded = false;
 
@@ -51,7 +51,7 @@ namespace Server
                 loaded = true;
             }
 
-            
+
         }
 
         public int Register(string user, string password)
@@ -82,7 +82,9 @@ namespace Server
         {
             if (Exist(user))
             {
-                if (registeredUsers[user].Equals(password))
+                if (isLogged(user))
+                    return 3;
+                else if (registeredUsers[user].Equals(password))
                 {
                     RemObj.User u = new RemObj.User(user, password);
                     // login sucesso
@@ -93,6 +95,7 @@ namespace Server
                     NotifyClients(RemObj.Operation.New, l, null);
                     return 0;
                 }
+               
                 else
                 {
                     //password incorrecta
@@ -116,7 +119,7 @@ namespace Server
                     onlineUsers.Remove(entry);
                     List<User> l = new List<User>();
                     l.Add(entry);
-                    NotifyClients(RemObj.Operation.Remove, l, null );
+                    NotifyClients(RemObj.Operation.Remove, l, null);
                     return;
                 }
             }
@@ -134,7 +137,7 @@ namespace Server
                     {
                         try
                         {
-                            handler(op, item, remUser );
+                            handler(op, item, remUser);
                             Console.WriteLine("Invoking event handler on " + item[0].Name);
                         }
                         catch (Exception)
@@ -159,91 +162,98 @@ namespace Server
             }
         }
 
-        public List<string> ListOnlineUsers()
+        private Boolean isLogged(string user)
         {
-            Console.WriteLine("GetList() called.");
-            // list all registeredUsers
-            List<string> ret = new List<string>();
-            foreach (var entry in onlineUsers)
-            {
-                // do something with entry.Value or entry.Key
-                ret.Add(entry.Name);
-            }
-            return ret;
+            if (ListOnlineUsers().Contains(user))
+                return true;
+            return false;
         }
 
-        public void SendChatRequest(string target, string me, string myport)
+    public List<string> ListOnlineUsers()
+    {
+        Console.WriteLine("GetList() called.");
+        // list all registeredUsers
+        List<string> ret = new List<string>();
+        foreach (var entry in onlineUsers)
         {
-
-            foreach (var entry in onlineUsers)
-            {
-                // do something with entry.Value or entry.Key
-                if (entry.Name.Equals(target))
-                {
-                    string[] rem = new string[2];
-                    rem[0] = me;
-                    rem[1] = myport;
-                    List<User> l = new List<User>();
-                    l.Add(entry);
-                    NotifyClients(RemObj.Operation.Request, l, rem);
-                    return;
-                }
-            }
+            // do something with entry.Value or entry.Key
+            ret.Add(entry.Name);
         }
+        return ret;
+    }
 
-        public void SendMultipleChatRequest(List<string> targets, string me, string myport)
+    public void SendChatRequest(string target, string me, string myport)
+    {
+
+        foreach (var entry in onlineUsers)
         {
-            List<User> l = new List<User>();
-            string[] rem = new string[2];
-            foreach (var entry in onlineUsers)
+            // do something with entry.Value or entry.Key
+            if (entry.Name.Equals(target))
             {
-                // do something with entry.Value or entry.Key
-                if (targets.Contains(entry.Name))
-                {
-                    rem[0] = me;
-                    rem[1] = myport;
-                    l.Add(entry);
-                }
+                string[] rem = new string[2];
+                rem[0] = me;
+                rem[1] = myport;
+                List<User> l = new List<User>();
+                l.Add(entry);
+                NotifyClients(RemObj.Operation.Request, l, rem);
+                return;
             }
-            NotifyClients(RemObj.Operation.Request, l, rem);
-            return;
-        }
-
-        public void AcceptRequest(string user, string me)
-        {
-            foreach (var entry in onlineUsers)
-            {
-                if (entry.Name.Equals(user))
-                {
-                    String[] rm = new string[1];
-                    rm[0] = me;
-                    List<User> l = new List<User>();
-                    l.Add(entry);
-                    NotifyClients(RemObj.Operation.Accept, l, rm);
-                    return;
-                }
-            }
-        }
-
-        public void DenyRequest(string user, string me)
-        {
-            foreach (var entry in onlineUsers)
-            {
-                if (entry.Name.Equals(user))
-                {
-                    String[] rm = new string[1];
-                    rm[0] = me;
-                    List<User> l = new List<User>();
-                    l.Add(entry);
-                    NotifyClients(RemObj.Operation.Reject, l, rm);
-                    return;
-                }
-            }
-        }
-
-        public void Print(string m)
-        {
-            Console.WriteLine(m);
         }
     }
+
+    public void SendMultipleChatRequest(List<string> targets, string me, string myport)
+    {
+        List<User> l = new List<User>();
+        string[] rem = new string[2];
+        foreach (var entry in onlineUsers)
+        {
+            // do something with entry.Value or entry.Key
+            if (targets.Contains(entry.Name))
+            {
+                rem[0] = me;
+                rem[1] = myport;
+                l.Add(entry);
+            }
+        }
+        NotifyClients(RemObj.Operation.Request, l, rem);
+        return;
+    }
+
+    public void AcceptRequest(string user, string me)
+    {
+        foreach (var entry in onlineUsers)
+        {
+            if (entry.Name.Equals(user))
+            {
+                String[] rm = new string[1];
+                rm[0] = me;
+                List<User> l = new List<User>();
+                l.Add(entry);
+                NotifyClients(RemObj.Operation.Accept, l, rm);
+                return;
+            }
+        }
+    }
+
+    public void DenyRequest(string user, string me)
+    {
+        foreach (var entry in onlineUsers)
+        {
+            if (entry.Name.Equals(user))
+            {
+                String[] rm = new string[1];
+                rm[0] = me;
+                List<User> l = new List<User>();
+                l.Add(entry);
+                NotifyClients(RemObj.Operation.Reject, l, rm);
+                return;
+            }
+        }
+    }
+
+    public void Print(string m)
+    {
+        Console.WriteLine(m);
+    }
+}
 }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Drawing;
+using System.Windows.Forms;
 
 namespace Client
 {
@@ -47,18 +48,21 @@ namespace Client
             // 
             // ClientList
             // 
+            this.ClientList.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ClientList.FullRowSelect = true;
             this.ClientList.Location = new System.Drawing.Point(1, 0);
             this.ClientList.Name = "ClientList";
             this.ClientList.Size = new System.Drawing.Size(374, 327);
             this.ClientList.TabIndex = 3;
             this.ClientList.UseCompatibleStateImageBehavior = false;
+            this.ClientList.View = System.Windows.Forms.View.List;
             this.ClientList.SelectedIndexChanged += new System.EventHandler(this.ClientList_SelectedIndexChanged);
             this.ClientList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseDoubleClick);
             // 
-            // initChatButton
+            // InitChatButton
             // 
             this.InitChatButton.Location = new System.Drawing.Point(12, 332);
-            this.InitChatButton.Name = "initChatButton";
+            this.InitChatButton.Name = "InitChatButton";
             this.InitChatButton.Size = new System.Drawing.Size(75, 23);
             this.InitChatButton.TabIndex = 4;
             this.InitChatButton.Text = "Chat";
@@ -76,8 +80,8 @@ namespace Client
             this.Name = "ClientListWindow";
             this.Text = "Client List";
             this.Load += new System.EventHandler(this.ClientWindow_Load);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.ResumeLayout(false);
-            this.FormClosing += ClientWindow_FormClosed;
 
         }
 

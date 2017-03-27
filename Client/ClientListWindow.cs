@@ -28,6 +28,7 @@ namespace Client
             items = rObj.ListOnlineUsers();
             chatInitiated = false;
             pending = 0;
+            this.Text += ": "+localUserName;
             evRepeater = new AlterEventRepeater();
             evRepeater.alterEvent += new AlterDelegate(DoAlterations);
             rObj.alterEvent += new AlterDelegate(evRepeater.Repeater);
@@ -112,6 +113,7 @@ namespace Client
                             var chatWindow = new ChatWindow("OWN", localPort, localUserName, remUser[0]);
                             chatWindow.ShowDialog();
                         }
+                        MessageBox.Show("" + pending);
                         pending--;
                         if (pending == 0)
                             chatInitiated = false;
@@ -148,14 +150,16 @@ namespace Client
 
         private void InitChatButton_Click(object sender, EventArgs e)
         {
+            if (ClientList.SelectedItems.Count == 0)
+                return;
             ListView.SelectedListViewItemCollection selectedItems = ClientList.SelectedItems;
             List<string> targets = new List<string>();
             foreach (ListViewItem i in selectedItems)
             {
                 targets.Add(i.Text);
-                pending++;
+                //pending++;
             }
-            
+            pending = targets.Count;
             rObj.SendMultipleChatRequest(targets, localUserName, localPort.ToString());
         }
 

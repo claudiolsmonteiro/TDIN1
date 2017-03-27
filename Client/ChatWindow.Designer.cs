@@ -32,6 +32,7 @@
             this.MsgBox = new System.Windows.Forms.TextBox();
             this.ChatBox = new System.Windows.Forms.TextBox();
             this.SendFileButton = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.SuspendLayout();
             // 
             // SendButton
@@ -60,16 +61,6 @@
             this.ChatBox.Size = new System.Drawing.Size(513, 357);
             this.ChatBox.TabIndex = 2;
             // 
-            // SendFileButton
-            // 
-            this.SendFileButton.Location = new System.Drawing.Point(592, 363);
-            this.SendFileButton.Name = "SendFileButton";
-            this.SendFileButton.Size = new System.Drawing.Size(75, 23);
-            this.SendFileButton.TabIndex = 3;
-            this.SendFileButton.Text = "SendFile";
-            this.SendFileButton.UseVisualStyleBackColor = true;
-            this.SendFileButton.Click += new System.EventHandler(this.SendFile);
-            // 
             // ChatWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -82,7 +73,7 @@
             this.Name = "ChatWindow";
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ChatWindow_FormClosed);
-            this.Load += new System.EventHandler(this.ChatWindow_Load_1);
+            this.FormClosing += (ChatWindow_Closed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -94,5 +85,6 @@
         private System.Windows.Forms.TextBox MsgBox;
         private System.Windows.Forms.TextBox ChatBox;
         private System.Windows.Forms.Button SendFileButton;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }

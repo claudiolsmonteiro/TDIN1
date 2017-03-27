@@ -16,7 +16,7 @@ namespace Client
             InitializeComponent();
             userService = (IUserService)RemObj.R.New(typeof(IUserService));  // get reference to the singleton remote object
             port = p;
-            userService.LoadUsers();
+           // userService.LoadUsers();
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
@@ -38,6 +38,9 @@ namespace Client
                 case 2:
                     //username errado
                     MessageBox.Show("Username doesn't exist!");
+                    break;
+                case 3:
+                    MessageBox.Show("This username is already logged in!");
                     break;
                 default:
                     break;
