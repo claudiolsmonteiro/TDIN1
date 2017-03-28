@@ -6,11 +6,11 @@ namespace Client
 {
     public partial class ChatRequestWindow : Form
     {
+        private readonly string localUserName;
         private readonly int port;
         private readonly string remoteUserName;
-        private readonly string localUserName;
-        private readonly string type;
         private readonly IUserService rObj;
+        private readonly string type;
 
         public ChatRequestWindow(string name, string t, IUserService r, string p, string localName)
         {

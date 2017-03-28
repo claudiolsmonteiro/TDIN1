@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Threading;
 using RemObj;
@@ -20,9 +19,9 @@ namespace Server
 
     public class UserService : MarshalByRefObject, IUserService
     {
-        private bool loaded;
         private readonly List<User> onlineUsers = new List<User>();
         private readonly Dictionary<string, string> registeredUsers = new Dictionary<string, string>();
+        private bool loaded;
         public event AlterDelegate alterEvent;
 
 
@@ -34,7 +33,8 @@ namespace Server
 
                 if (!File.Exists(path))
                 {
-                    File.Create(path);
+                    File.Create(path).Close();
+                    
                 }
                 else
                 {
@@ -59,10 +59,11 @@ namespace Server
             //adiciona user a bd
             var path = AppDomain.CurrentDomain.BaseDirectory + "Users.txt";
 
-            using (var sw = File.AppendText(path))
+            using (var sw = new StreamWriter(path, true))
             {
                 sw.WriteLine(user);
                 sw.WriteLine(password);
+                sw.Close();
             }
 
             registeredUsers.Add(user, password);

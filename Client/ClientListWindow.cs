@@ -7,13 +7,13 @@ namespace Client
 {
     public partial class ClientListWindow : Form
     {
-        private bool chatInitiated;
         private readonly AlterEventRepeater evRepeater;
         private readonly List<string> items;
         private readonly int localPort;
         private readonly string localUserName;
-        private int pending;
         private readonly IUserService rObj;
+        private bool chatInitiated;
+        private int pending;
 
         public ClientListWindow(string n, IUserService r, int p)
         {
@@ -38,15 +38,15 @@ namespace Client
             ListViewItem[] listItems;
 
             if (InvokeRequired)
-                listItems = (ListViewItem[])Invoke((MethodInvoker)delegate
-              {
-                  foreach (ListViewItem i in ClientList.Items)
-                  {
-                      listviewitem = i;
-                      if (ClientName == listviewitem.Text)
-                          break;
-                  }
-              });
+                listItems = (ListViewItem[]) Invoke((MethodInvoker) delegate
+                {
+                    foreach (ListViewItem i in ClientList.Items)
+                    {
+                        listviewitem = i;
+                        if (ClientName == listviewitem.Text)
+                            break;
+                    }
+                });
             else
                 foreach (ListViewItem i in ClientList.Items)
                 {
@@ -65,7 +65,7 @@ namespace Client
             {
                 case Operation.New:
                     lvAdd = ClientList.Items.Add;
-                    lvItem = new ListViewItem(new[] { item[0].Name });
+                    lvItem = new ListViewItem(new[] {item[0].Name});
                     BeginInvoke(lvAdd, lvItem);
                     break;
 
@@ -75,8 +75,8 @@ namespace Client
                     if (listviewitem != null)
                         if (InvokeRequired)
                         {
-                            Invoke((MethodInvoker)delegate { ClientList.Items.Remove(listviewitem); });
-                            Invoke((MethodInvoker)delegate { ClientList.Refresh(); });
+                            Invoke((MethodInvoker) delegate { ClientList.Items.Remove(listviewitem); });
+                            Invoke((MethodInvoker) delegate { ClientList.Refresh(); });
                         }
                         else
                         {
@@ -90,14 +90,13 @@ namespace Client
                     foreach (var u in item)
                         if (u.Name.Equals(localUserName))
                         {
-                            var chatRequest = new ChatRequestWindow(remUser[0], remUser[2], rObj, remUser[1], localUserName);
+                            var chatRequest = new ChatRequestWindow(remUser[0], remUser[2], rObj, remUser[1],
+                                localUserName);
                             chatRequest.ShowDialog();
                         }
                     break;
                 case Operation.Accept:
                     if (item[0].Name.Equals(localUserName))
-                    {
-
                         if (remUser[1].Equals("mult"))
                         {
                             if (!chatInitiated)
@@ -113,14 +112,13 @@ namespace Client
                         else
                         {
                             var chatWindow = new ChatWindow("OWN", remUser[0], localPort, localUserName, remUser[0]);
-                        chatWindow.ShowDialog();
+                            chatWindow.ShowDialog();
                         }
-
-                    }
                     break;
                 case Operation.AcceptSingle:
                     if (item[0].Name.Equals(localUserName))
-                    {/*
+                    {
+/*
                         
                         pending--;
                         if (pending == 0)
@@ -132,7 +130,6 @@ namespace Client
                             chatWindow.ShowDialog();
                         }
 */
-                        
                     }
                     break;
                 case Operation.Reject:
@@ -181,7 +178,7 @@ namespace Client
             foreach (var name in items)
                 if (name != localUserName)
                 {
-                    var lvItem = new ListViewItem(new[] { name });
+                    var lvItem = new ListViewItem(new[] {name});
                     ClientList.Items.Add(lvItem);
                 }
         }
