@@ -5,6 +5,7 @@ using System.Runtime.Remoting;
 using System.Threading;
 using System.Windows.Forms;
 using RemObj;
+using System.IO;
 
 namespace Client
 {
@@ -72,9 +73,35 @@ namespace Client
             MsgBox.Clear();
         }
 
+        [STAThread]
+        private void SendFile(object sender, EventArgs e)
+        {
+            try
+            {
+                Thread t = new Thread(() =>
+                {
+                    OpenFileDialog dlg = new OpenFileDialog();
+
+                    if(dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        string fileName = dlg.FileName;
+                        byte[] body = File.ReadAllBytes(fileName);
+
+                        chatService.SendFile(localUsername, fileName, body);
+                    }
+                });
+
+                t.SetApartmentState(ApartmentState.STA);
+                t.Start();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
 
 
-        public void DoAlterations(ChatOperation op, string user, string message)
+        public void DoAlterations(ChatOperation op, string user, string message, byte[] fBody)
         {
             switch (op)
             {
@@ -136,6 +163,33 @@ namespace Client
                     else
                         Text = title;
                     break;
+                case ChatOperation.NewFile:
+                    if (localUsername != user)
+                    {
+                        string[] fName = message.Split('\\');
+                        string path = AppDomain.CurrentDomain.BaseDirectory + fName[fName.Length - 1];
+
+                        if (MessageBox.Show(user + " wants to send you the file: " + fName[fName.Length - 1] + Environment.NewLine + "Accept?", "Receive File", MessageBoxButtons.YesNo) ==
+                            System.Windows.Forms.DialogResult.No)
+                            break;
+
+                        if (InvokeRequired)
+                        {
+                            Invoke((MethodInvoker)delegate { File.WriteAllBytes(path, fBody); });
+                        }
+                        else
+                        {
+                            try
+                            {
+                                File.WriteAllBytes(path, fBody);
+                            }
+                            catch(Exception e)
+                            {
+                                MessageBox.Show(e.Message);
+                            }
+                        }
+                    }
+                    break;
             }
         }
 
@@ -162,6 +216,7 @@ namespace Client
             alterEventChat -= DoAlterations;
             evRepeater.alterEventChat -= evRepeater.Repeater;
         }
+
     }
 
 
@@ -172,18 +227,23 @@ namespace Client
 
         public void SendMessage(string user, string message)
         {
-            NotifyClients(ChatOperation.NewMsg, user, message);
+            NotifyClients(ChatOperation.NewMsg, user, message, null);
+        }
+
+        public void SendFile(string user, string fileName, byte[] fileBody)
+        {
+            NotifyClients(ChatOperation.NewFile, user, fileName, fileBody);
         }
 
         public void CloseChat(string me, string other)
         {
-            NotifyClients(ChatOperation.CloseChat, me, other);
+            NotifyClients(ChatOperation.CloseChat, me, other, null);
         }
 
         public void AddUserInChat(string u)
         {
             usersInChat.Add(u);
-            NotifyClients(ChatOperation.NewUser, u, null);
+            NotifyClients(ChatOperation.NewUser, u, null, null);
         }
 
         public List<string> GetUsersInChat()
@@ -200,7 +260,7 @@ namespace Client
         {
         }
 
-        public void NotifyClients(ChatOperation op, string user, string message)
+        public void NotifyClients(ChatOperation op, string user, string message, byte[] fBody)
         {
             if (alterEventChat != null)
             {
@@ -211,7 +271,7 @@ namespace Client
                     {
                         try
                         {
-                            handler(op, user, message);
+                            handler(op, user, message, fBody);
                             // Console.WriteLine("Invoking event handler on " + item.Name);
                         }
                         catch (Exception)

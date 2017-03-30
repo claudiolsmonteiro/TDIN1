@@ -51,12 +51,13 @@ namespace RemObj
         NewMsg,
         Remove,
         CloseChat,
-        NewUser
+        NewUser,
+        NewFile
     }
 
     public delegate void AlterDelegate(Operation op, List<User> item, string[] remUser);
 
-    public delegate void ChatDelegate(ChatOperation op, string user, string message);
+    public delegate void ChatDelegate(ChatOperation op, string user, string message, byte[] fBody);
 
     public class AlterEventRepeater : MarshalByRefObject
     {
@@ -83,10 +84,10 @@ namespace RemObj
             return null;
         }
 
-        public void Repeater(ChatOperation op, string user, string message)
+        public void Repeater(ChatOperation op, string user, string message, byte[] fBody)
         {
             if (alterEventChat != null)
-                alterEventChat(op, user, message);
+                alterEventChat(op, user, message, fBody);
         }
     }
 

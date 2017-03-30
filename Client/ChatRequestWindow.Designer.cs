@@ -33,20 +33,21 @@
             this.ChatTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // AcceptButton
+            // ConfirmButton
             // 
-            this.ConfirmButton.Location = new System.Drawing.Point(37, 207);
-            this.ConfirmButton.Name = "AcceptButton";
+            this.ConfirmButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ConfirmButton.Location = new System.Drawing.Point(12, 144);
+            this.ConfirmButton.Name = "ConfirmButton";
             this.ConfirmButton.Size = new System.Drawing.Size(75, 23);
             this.ConfirmButton.TabIndex = 0;
             this.ConfirmButton.Text = "Accept";
             this.ConfirmButton.UseVisualStyleBackColor = true;
             this.ConfirmButton.Click += new System.EventHandler(this.AcceptRequest);
-
             // 
             // DenyButton
             // 
-            this.DenyButton.Location = new System.Drawing.Point(168, 207);
+            this.DenyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.DenyButton.Location = new System.Drawing.Point(167, 144);
             this.DenyButton.Name = "DenyButton";
             this.DenyButton.Size = new System.Drawing.Size(75, 23);
             this.DenyButton.TabIndex = 1;
@@ -56,27 +57,30 @@
             // 
             // ChatTextBox
             // 
-            this.ChatTextBox.Location = new System.Drawing.Point(37, 45);
+            this.ChatTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ChatTextBox.Location = new System.Drawing.Point(12, 12);
             this.ChatTextBox.Multiline = true;
             this.ChatTextBox.Name = "ChatTextBox";
             this.ChatTextBox.ReadOnly = true;
-            this.ChatTextBox.Size = new System.Drawing.Size(206, 125);
+            this.ChatTextBox.Size = new System.Drawing.Size(230, 126);
             this.ChatTextBox.TabIndex = 2;
             // 
             // ChatRequestWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(254, 176);
             this.Controls.Add(this.ChatTextBox);
             this.Controls.Add(this.DenyButton);
             this.Controls.Add(this.ConfirmButton);
+            this.MaximumSize = new System.Drawing.Size(300, 240);
+            this.MinimumSize = new System.Drawing.Size(270, 215);
             this.Name = "ChatRequestWindow";
             this.Text = "ChatRequestWindow";
             this.ResumeLayout(false);
-            this.FormClosing += (ChatRequestWindow_Closed);
-            //this.Load += new System.EventHandler(this.ChatReqWindow_Load);
-            //this.PerformLayout();
+            this.PerformLayout();
 
         }
 

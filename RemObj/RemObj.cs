@@ -24,6 +24,7 @@ namespace RemObj
         event ChatDelegate alterEventChat;
 
         void SendMessage(string user, string message);
+        void SendFile(string user, string fileName, byte[] fileBody);
         void CloseChat(string me, string other);
         void AddUserInChat(string u);
         List<string> GetUsersInChat();

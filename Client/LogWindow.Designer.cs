@@ -40,6 +40,8 @@ namespace Client
             // 
             // UsernameTextBox
             // 
+            this.UsernameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.UsernameTextBox.Location = new System.Drawing.Point(85, 63);
             this.UsernameTextBox.Name = "UsernameTextBox";
             this.UsernameTextBox.Size = new System.Drawing.Size(162, 20);
@@ -48,6 +50,8 @@ namespace Client
             // 
             // PasswordTextBox
             // 
+            this.PasswordTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.PasswordTextBox.Location = new System.Drawing.Point(85, 112);
             this.PasswordTextBox.Name = "PasswordTextBox";
             this.PasswordTextBox.Size = new System.Drawing.Size(162, 20);
@@ -55,6 +59,7 @@ namespace Client
             // 
             // LogButton
             // 
+            this.LogButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LogButton.Location = new System.Drawing.Point(26, 181);
             this.LogButton.Name = "LogButton";
             this.LogButton.Size = new System.Drawing.Size(75, 23);
@@ -65,6 +70,7 @@ namespace Client
             // 
             // RegButton
             // 
+            this.RegButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.RegButton.Location = new System.Drawing.Point(172, 181);
             this.RegButton.Name = "RegButton";
             this.RegButton.Size = new System.Drawing.Size(75, 23);
@@ -75,6 +81,8 @@ namespace Client
             // 
             // UsernameLabel
             // 
+            this.UsernameLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.UsernameLabel.AutoSize = true;
             this.UsernameLabel.Location = new System.Drawing.Point(23, 66);
             this.UsernameLabel.Name = "UsernameLabel";
@@ -84,6 +92,8 @@ namespace Client
             // 
             // PasswordLabel
             // 
+            this.PasswordLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.PasswordLabel.AutoSize = true;
             this.PasswordLabel.Location = new System.Drawing.Point(23, 115);
             this.PasswordLabel.Name = "PasswordLabel";
@@ -102,6 +112,8 @@ namespace Client
             this.Controls.Add(this.LogButton);
             this.Controls.Add(this.PasswordTextBox);
             this.Controls.Add(this.UsernameTextBox);
+            this.MaximumSize = new System.Drawing.Size(300, 300);
+            this.MinimumSize = new System.Drawing.Size(285, 285);
             this.Name = "LogWindow";
             this.Text = "Register";
             this.Load += new System.EventHandler(this.LogWindow_Load);

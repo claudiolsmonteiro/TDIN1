@@ -38,7 +38,8 @@ namespace Client
             // 
             // LogOut
             // 
-            this.LogOut.Location = new System.Drawing.Point(289, 332);
+            this.LogOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.LogOut.Location = new System.Drawing.Point(297, 332);
             this.LogOut.Name = "LogOut";
             this.LogOut.Size = new System.Drawing.Size(75, 23);
             this.LogOut.TabIndex = 2;
@@ -48,11 +49,14 @@ namespace Client
             // 
             // ClientList
             // 
+            this.ClientList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.ClientList.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ClientList.FullRowSelect = true;
-            this.ClientList.Location = new System.Drawing.Point(1, 0);
+            this.ClientList.Location = new System.Drawing.Point(12, 12);
             this.ClientList.Name = "ClientList";
-            this.ClientList.Size = new System.Drawing.Size(374, 327);
+            this.ClientList.Size = new System.Drawing.Size(360, 314);
             this.ClientList.TabIndex = 3;
             this.ClientList.UseCompatibleStateImageBehavior = false;
             this.ClientList.View = System.Windows.Forms.View.List;
@@ -61,6 +65,7 @@ namespace Client
             // 
             // InitChatButton
             // 
+            this.InitChatButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.InitChatButton.Location = new System.Drawing.Point(12, 332);
             this.InitChatButton.Name = "InitChatButton";
             this.InitChatButton.Size = new System.Drawing.Size(75, 23);
@@ -73,14 +78,16 @@ namespace Client
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(376, 368);
+            this.ClientSize = new System.Drawing.Size(384, 361);
             this.Controls.Add(this.InitChatButton);
             this.Controls.Add(this.ClientList);
             this.Controls.Add(this.LogOut);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximumSize = new System.Drawing.Size(400, 400);
+            this.MinimumSize = new System.Drawing.Size(200, 200);
             this.Name = "ClientListWindow";
             this.Text = "Client List";
             this.Load += new System.EventHandler(this.ClientWindow_Load);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.ResumeLayout(false);
 
         }
